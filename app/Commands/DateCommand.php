@@ -44,11 +44,15 @@ class DateCommand extends AbstractCommand
         );
         $output[] = sprintf(
             "Short: %s",
-            $this->formatOutput($now->format('m/d/Y'), 'value')
+            $this->formatOutput($now->format('d/m/Y'), 'value')
         );
         $output[] = sprintf(
             "Time: %s",
             $this->formatOutput($now->format('H:i:s'), 'value')
+        );
+        $output[] = sprintf(
+            "Wrong: %s",
+            $this->formatOutput($now->format('m/d/Y'), 'value')
         );
 
         return $output;

@@ -16,11 +16,13 @@ class EchoCommand extends AbstractCommand
             ];
         }
 
-        // Join all arguments with spaces, preserving quoted strings
-        $text = implode(' ', $args);
+        // Process each argument to remove quotes
+        $processedArgs = array_map(function ($arg) {
+            return trim($arg, '"\'');
+        }, $args);
 
-        // Remove surrounding quotes if present
-        $text = trim($text, '"\'');
+        // Join arguments with spaces
+        $text = implode(' ', $processedArgs);
 
         return [
             $this->formatOutput($text, 'default'),
