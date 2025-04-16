@@ -92,8 +92,8 @@ class Terminal extends Component
 
             $this->output = array_merge($this->output, $result);
         } else {
-            $this->output[] = "Command not found: {$commandName}";
-            $this->output[] = "Type 'help' to see available commands.";
+            $this->output[] = "<span class=\"text-red-400\">calkeos: command not found: {$commandName}</span>";
+            $this->output[] = "<span class=\"text-yellow-400\">Type 'help' to see available commands.</span>";
         }
     }
 

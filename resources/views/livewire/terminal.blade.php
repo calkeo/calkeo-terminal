@@ -2,7 +2,7 @@
     <div class="h-full flex flex-col">
         <!-- Terminal Header -->
         <div class="flex items-center p-2 bg-gray-950 border-b border-gray-800">
-            <div class="text-xs text-cyan-400 font-['JetBrains_Mono']">{{ $username }}@calkeos ~ </div>
+            <div class="text-xs text-cyan-400 font-['JetBrains_Mono']">{{ $username }}@calkeo.dev ~ </div>
         </div>
 
         <!-- Terminal Content -->
@@ -17,7 +17,7 @@
 
             <!-- Command Input -->
             <div class="flex items-center mt-3 font-['JetBrains_Mono']">
-                <span class="text-cyan-400 mr-2 text-sm">{{ $username }}@calkeos:</span>
+                <span class="text-cyan-400 mr-2 text-sm">{{ $username }}@calkeo.dev:</span>
                 <span class="text-yellow-500 mr-1 text-sm">~</span>
                 <span class="text-green-400 mr-2 text-sm">$</span>
                 <input type="text" wire:model="command" wire:keydown.enter="executeCommand"
