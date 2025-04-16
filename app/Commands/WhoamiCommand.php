@@ -2,6 +2,8 @@
 
 namespace App\Commands;
 
+use Illuminate\Support\Facades\Session;
+
 class WhoamiCommand extends AbstractCommand
 {
     protected $name = 'whoami';
@@ -9,8 +11,8 @@ class WhoamiCommand extends AbstractCommand
 
     public function execute(array $args = []): array
     {
-        $username = session('terminal_username', 'guest');
-        $hostname = 'calkeo.dev';
+        $username = Session::get('terminal_username', 'guest');
+        $hostname = 'calkeos';
         $uid = rand(1000, 9999);
         $gid = rand(100, 999);
         $groups = 'users,admin,docker';

@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Commands\CommandParser;
 use App\Commands\CommandRegistry;
+use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 
 class Terminal extends Component
@@ -54,6 +55,14 @@ class Terminal extends Component
 
         // Add command to output
         $this->output[] = "\$ " . $this->command;
+
+        // Add command to history with timestamp
+        $history = Session::get('command_history', []);
+        $history[] = [
+            'command' => $this->command,
+            'timestamp' => now()->format('Y-m-d H:i:s'),
+        ];
+        Session::put('command_history', $history);
 
         // Add command to history
         $this->commandHistory[] = $this->command;

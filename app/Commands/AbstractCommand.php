@@ -95,30 +95,21 @@ abstract class AbstractCommand implements CommandInterface
     /**
      * Create a styled box container
      *
-     * @param  array  $lines Lines to include in the box
-     * @param  string $title Optional title for the box
-     * @return string HTML for the styled box
+     * @param  array   $lines Lines to include in the box
+     * @param  ?string $title Optional title for the box
+     * @return string  HTML for the styled box
      */
-    protected function createStyledBox(array $lines, string $title = null): string
+    protected function createStyledBox(array $lines, ?string $title = null): string
     {
-        $html = '<div class="font-[\'JetBrains_Mono\'] border border-gray-700 my-2">';
+        $boxContainer = $this->formatOutput(
+            '<div class="font-[\'JetBrains_Mono\'] border border-gray-700 rounded-lg overflow-hidden bg-gray-900">' .
+            ($title ? '<div class="bg-gray-800 p-2 border-b border-gray-700"><span class="text-gray-400">$</span> ' . $title . '</div>' : '') .
+            '<div class="p-4 space-y-1">' . implode('<br>', $lines) . '</div>' .
+            '</div>',
+            'info'
+        );
 
-        if ($title) {
-            $html .= '<div class="bg-gray-800 px-2 py-1 border-b border-gray-700 flex items-center">';
-            $html .= '<span class="text-gray-500 mr-1">$</span>';
-            $html .= $this->formatOutput($title, 'header');
-            $html .= '</div>';
-        }
-
-        $html .= '<div class="p-2">';
-
-        foreach ($lines as $line) {
-            $html .= '<div class="py-0.5">' . $line . '</div>';
-        }
-
-        $html .= '</div></div>';
-
-        return $html;
+        return $boxContainer;
     }
 
     /**

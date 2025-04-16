@@ -5,7 +5,10 @@ namespace App\Providers;
 use App\Commands\AboutCommand;
 use App\Commands\ClearCommand;
 use App\Commands\CommandRegistry;
+use App\Commands\DateCommand;
+use App\Commands\EchoCommand;
 use App\Commands\HelpCommand;
+use App\Commands\HistoryCommand;
 use App\Commands\LogoutCommand;
 use App\Commands\SudoCommand;
 use App\Commands\WhoamiCommand;
@@ -28,6 +31,9 @@ class CommandServiceProvider extends ServiceProvider
             $registry->register(new LogoutCommand());
             $registry->register(new WhoamiCommand());
             $registry->register(new SudoCommand());
+            $registry->register(new HistoryCommand());
+            $registry->register(new EchoCommand());
+            $registry->register(new DateCommand());
 
             // Add more commands here
 
