@@ -6,6 +6,7 @@ use App\Commands\AboutCommand;
 use App\Commands\CalculatorCommand;
 use App\Commands\ClearCommand;
 use App\Commands\CommandRegistry;
+use App\Commands\ContactCommand;
 use App\Commands\DateCommand;
 use App\Commands\EchoCommand;
 use App\Commands\HelpCommand;
@@ -36,6 +37,7 @@ class CommandServiceProvider extends ServiceProvider
             $registry->register(new EchoCommand());
             $registry->register(new DateCommand());
             $registry->register(new CalculatorCommand());
+            $registry->register(new ContactCommand());
 
             // Add more commands here
 

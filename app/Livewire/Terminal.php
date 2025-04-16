@@ -16,6 +16,7 @@ class Terminal extends Component
     public $suggestions = [];
     public $showSuggestions = false;
     public $username = '';
+    public $currentCommandName = null;
 
     protected $commandRegistry;
     protected $commandParser;
@@ -41,6 +42,7 @@ class Terminal extends Component
         $this->historyIndex = -1;
         $this->suggestions = [];
         $this->showSuggestions = false;
+        $this->currentCommandName = null;
 
         // Add welcome message
         $welcomeMessage = new \App\Commands\WelcomeMessage();
@@ -68,21 +70,30 @@ class Terminal extends Component
         $this->commandHistory[] = $this->command;
         $this->historyIndex = count($this->commandHistory);
 
-        // Parse the command
-        $parsed = $this->commandParser->parse($this->command);
-        $commandName = $parsed['command'];
-        $args = $parsed['args'];
+        // If we have a current command, treat the entire input as args
+        if ($this->currentCommandName) {
+            $command = $this->commandRegistry->get($this->currentCommandName);
+            $args = [$this->command];
+        } else {
+            // Parse the command
+            $parsed = $this->commandParser->parse($this->command);
+            $commandName = $parsed['command'];
+            $args = $parsed['args'];
+
+            // Handle empty command
+            if (empty($commandName)) {
+                return;
+            }
+
+            // Find the command
+            $command = $this->commandRegistry->get($commandName);
+            if ($command) {
+                $this->currentCommandName = $commandName;
+            }
+        }
 
         // Clear the command input
         $this->command = '';
-
-        // Handle empty command
-        if (empty($commandName)) {
-            return;
-        }
-
-        // Find and execute the command
-        $command = $this->commandRegistry->get($commandName);
 
         if ($command) {
             $result = $command->execute($args);
@@ -90,13 +101,21 @@ class Terminal extends Component
             // Handle special clear command
             if ($result === ['__CLEAR__']) {
                 $this->output = [$this->formatWelcomeMessage()];
+                $this->currentCommandName = null;
                 return;
             }
 
             // Handle logout command
             if (in_array('__LOGOUT__', $result)) {
                 $this->output = array_merge($this->output, array_diff($result, ['__LOGOUT__']));
+                $this->currentCommandName = null;
                 return $this->redirect('/');
+            }
+
+            // Check if the command is complete (no more steps)
+            if (in_array('__COMPLETE__', $result)) {
+                $this->currentCommandName = null;
+                $result = array_diff($result, ['__COMPLETE__']);
             }
 
             $this->output = array_merge($this->output, $result);
