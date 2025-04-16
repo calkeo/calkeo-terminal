@@ -19,6 +19,13 @@ abstract class AbstractCommand implements CommandInterface
     protected $description;
 
     /**
+     * Hidden command
+     *
+     * @var bool
+     */
+    protected $hidden = false;
+
+    /**
      * Get the command name
      *
      * @return string
@@ -49,6 +56,16 @@ abstract class AbstractCommand implements CommandInterface
     }
 
     /**
+     * Check if the command is hidden
+     *
+     * @return bool
+     */
+    public function isHidden(): bool
+    {
+        return $this->hidden;
+    }
+
+    /**
      * Format output with proper styling
      *
      * @param  string $text     Text to format
@@ -73,5 +90,70 @@ abstract class AbstractCommand implements CommandInterface
         $class = $styles[$style] ?? $styles['default'];
 
         return "<span class=\"{$class}\">{$text}</span>";
+    }
+
+    /**
+     * Create a styled box container
+     *
+     * @param  array  $lines Lines to include in the box
+     * @param  string $title Optional title for the box
+     * @return string HTML for the styled box
+     */
+    protected function createStyledBox(array $lines, string $title = null): string
+    {
+        $html = '<div class="font-[\'JetBrains_Mono\'] border border-gray-700 my-2">';
+
+        if ($title) {
+            $html .= '<div class="bg-gray-800 px-2 py-1 border-b border-gray-700 flex items-center">';
+            $html .= '<span class="text-gray-500 mr-1">$</span>';
+            $html .= $this->formatOutput($title, 'header');
+            $html .= '</div>';
+        }
+
+        $html .= '<div class="p-2">';
+
+        foreach ($lines as $line) {
+            $html .= '<div class="py-0.5">' . $line . '</div>';
+        }
+
+        $html .= '</div></div>';
+
+        return $html;
+    }
+
+    /**
+     * Create a styled table
+     *
+     * @param  array  $headers Table headers
+     * @param  array  $rows    Table rows
+     * @return string HTML for the styled table
+     */
+    protected function createStyledTable(array $headers, array $rows): string
+    {
+        $html = '<div class="font-[\'JetBrains_Mono\'] border border-gray-700 my-2">';
+
+        // Headers
+        $html .= '<div class="bg-gray-800 px-2 py-1 border-b border-gray-700 flex">';
+        foreach ($headers as $index => $header) {
+            $html .= '<div class="' . ($index > 0 ? 'ml-8' : '') . ' ' . ($index === 0 ? 'w-32' : 'flex-1') . '">';
+            $html .= $this->formatOutput($header, 'subheader');
+            $html .= '</div>';
+        }
+        $html .= '</div>';
+
+        // Rows
+        $html .= '<div class="p-2">';
+        foreach ($rows as $row) {
+            $html .= '<div class="py-0.5 flex">';
+            foreach ($row as $index => $cell) {
+                $html .= '<div class="' . ($index > 0 ? 'ml-8' : '') . ' ' . ($index === 0 ? 'w-32' : 'flex-1') . '">' . $cell . '</div>';
+            }
+            $html .= '</div>';
+        }
+        $html .= '</div>';
+
+        $html .= '</div>';
+
+        return $html;
     }
 }

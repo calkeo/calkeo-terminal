@@ -35,7 +35,15 @@ class Terminal extends Component
         // Get username from session
         $this->username = session('terminal_username', 'guest');
 
-        $this->output[] = $this->formatWelcomeMessage();
+        $this->output = [];
+        $this->commandHistory = [];
+        $this->historyIndex = -1;
+        $this->suggestions = [];
+        $this->showSuggestions = false;
+
+        // Add welcome message
+        $welcomeMessage = new \App\Commands\WelcomeMessage();
+        $this->output[] = $welcomeMessage->format();
     }
 
     public function executeCommand()
@@ -162,20 +170,50 @@ class Terminal extends Component
     {
         $date = date('D M j H:i:s T Y');
 
-        return "Welcome to calkeOS v1.0.0 (GNU/Linux 6.9.420 x86_64)\n\n" .
-            "* Documentation:  https://docs.calkeos.dev\n" .
-            "* Management:     https://manage.calkeos.dev\n" .
-            "* Support:        https://support.calkeos.dev (Premium support available!)\n\n" .
-            "System information as of " . $date . "\n\n" .
-            "╔════════════════════════════════════════════════════════════════════════════╗\n" .
-            "║                           calkeOS Terminal v1.0.0                           ║\n" .
-            "║                                                                           ║\n" .
-            "║  • Now with 100% more terminal!                                          ║\n" .
-            "║  • Featuring the revolutionary \"help\" command                             ║\n" .
-            "║  • Includes state-of-the-art \"clear\" technology                          ║\n" .
-            "║  • Powered by pure caffeine and determination                            ║\n" .
-            "╚════════════════════════════════════════════════════════════════════════════╝\n\n" .
-            "Type 'help' to see available commands.";
+        $html = '<div class="border border-gray-700 my-2">';
+
+        // Header
+        $html .= '<div class="bg-gray-800 px-2 py-1 border-b border-gray-700 flex items-center justify-center">';
+        $html .= '<span class="text-cyan-400 font-bold">calkeOS Terminal v1.0.0</span>';
+        $html .= '</div>';
+
+        // Content
+        $html .= '<div class="p-2">';
+
+        // Features
+        $html .= '<div class="py-1">';
+        $html .= '<span class="text-yellow-400">*</span> Now with 100% more terminal!<br>';
+        $html .= '<span class="text-yellow-400">*</span> Featuring the revolutionary "help" command<br>';
+        $html .= '<span class="text-yellow-400">*</span> Includes state-of-the-art "clear" technology<br>';
+        $html .= '<span class="text-yellow-400">*</span> Powered by pure caffeine and determination';
+        $html .= '</div>';
+
+        // System info
+        $html .= '<div class="py-1 mt-2">';
+        $html .= 'System information as of <span class="text-cyan-400">' . $date . '</span><br>';
+        $html .= 'Kernel: <span class="text-blue-400">6.9.420</span> (GNU/Linux x86_64)<br>';
+        $html .= 'CPU: <span class="text-blue-400">Intel(R) Caffeine(TM) i9 9999K @ 4.20GHz</span><br>';
+        $html .= 'Memory: <span class="text-blue-400">42GB of pure determination</span><br>';
+        $html .= 'Disk: <span class="text-blue-400">1TB of possibilities</span>';
+        $html .= '</div>';
+
+        // Help text
+        $html .= '<div class="py-1 mt-2">';
+        $html .= 'Type <span class="text-purple-400">help</span> to see available commands';
+        $html .= '</div>';
+
+        $html .= '</div>'; // End content
+        $html .= '</div>'; // End box
+
+        // Welcome message
+        $html .= '<div class="my-2">';
+        $html .= 'Welcome to <span class="text-cyan-400">calkeOS v1.0.0</span> (GNU/Linux 6.9.420 x86_64)<br><br>';
+        $html .= '<span class="text-yellow-400">*</span> Documentation: <span class="text-blue-400">https://docs.calkeos.dev</span><br>';
+        $html .= '<span class="text-yellow-400">*</span> Management: <span class="text-blue-400">https://manage.calkeos.dev</span><br>';
+        $html .= '<span class="text-yellow-400">*</span> Support: <span class="text-blue-400">https://support.calkeos.dev</span> <span class="text-pink-400">(Premium support available!)</span>';
+        $html .= '</div>';
+
+        return $html;
     }
 
     public function render()

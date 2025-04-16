@@ -2,15 +2,20 @@
 
 namespace App\Commands;
 
+use App\Commands\CommandRegistry;
+
 class HelpCommand extends AbstractCommand
 {
+    protected $name = 'help';
+    protected $description = 'Show help information';
+    protected $commandRegistry;
+
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct(CommandRegistry $commandRegistry)
     {
-        $this->name = 'help';
-        $this->description = 'Show available commands';
+        $this->commandRegistry = $commandRegistry;
     }
 
     /**
@@ -22,18 +27,58 @@ class HelpCommand extends AbstractCommand
     public function execute(array $args = []): array
     {
         $output = [];
-        $output[] = $this->formatOutput('Available Commands:', 'info');
-        $output[] = '';
 
-        // Get command registry from the terminal component
-        $registry = app(CommandRegistry::class);
+        // If a specific command is requested
+        if (!empty($args)) {
+            $commandName = $args[0];
+            $command = $this->commandRegistry->get($commandName);
 
-        foreach ($registry->getHelp() as $line) {
-            $output[] = $line;
+            if ($command) {
+                $output[] = $this->formatOutput("Command: " . $command->getName(), 'header');
+
+                $boxLines = [
+                    $this->formatOutput("Description:", 'subheader') . " " . $command->getDescription(),
+                    $this->formatOutput("Usage:", 'subheader') . " " . $command->getUsage(),
+                ];
+
+                $output[] = $this->createStyledBox($boxLines, "Command Details");
+                return $output;
+            } else {
+                $output[] = $this->formatOutput("Command not found: " . $commandName, 'error');
+                return $output;
+            }
         }
 
-        $output[] = '';
-        $output[] = $this->formatOutput('For more information about a specific command, use: help <command>', 'info');
+        // General help
+        $output[] = $this->formatOutput("calkeOS Terminal Help", 'header');
+
+        // Create table for commands
+        $headers = ['Command', 'Description'];
+        $rows = [];
+
+        $commands = $this->commandRegistry->all();
+        $commandCount = 0;
+
+        foreach ($commands as $command) {
+            if (!$command->isHidden()) {
+                $commandCount++;
+                $rows[] = [
+                    $this->formatOutput($command->getName(), 'command'),
+                    $command->getDescription(),
+                ];
+            }
+        }
+
+        if ($commandCount === 0) {
+            $rows[] = [
+                $this->formatOutput("No commands available.", 'warning'),
+                "",
+            ];
+        }
+
+        $output[] = $this->createStyledTable($headers, $rows);
+        $output[] = "";
+        $output[] = $this->formatOutput("For more information on a specific command, type: ", 'info') . $this->formatOutput("help <command>", 'command');
 
         return $output;
     }
