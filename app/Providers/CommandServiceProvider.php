@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Commands\AboutCommand;
+use App\Commands\CalculatorCommand;
 use App\Commands\ClearCommand;
 use App\Commands\CommandRegistry;
 use App\Commands\DateCommand;
@@ -34,6 +35,7 @@ class CommandServiceProvider extends ServiceProvider
             $registry->register(new HistoryCommand());
             $registry->register(new EchoCommand());
             $registry->register(new DateCommand());
+            $registry->register(new CalculatorCommand());
 
             // Add more commands here
 
