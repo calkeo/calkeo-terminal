@@ -10,6 +10,7 @@ use App\Commands\CommandRegistry;
 use App\Commands\ContactCommand;
 use App\Commands\DateCommand;
 use App\Commands\EchoCommand;
+use App\Commands\GithubCommand;
 use App\Commands\HelpCommand;
 use App\Commands\HistoryCommand;
 use App\Commands\LogoutCommand;
@@ -40,6 +41,7 @@ class CommandServiceProvider extends ServiceProvider
             $registry->register(new CalculatorCommand());
             $registry->register(new ContactCommand());
             $registry->register(new ChangelogCommand());
+            $registry->register(new GithubCommand());
 
             // Add more commands here
 

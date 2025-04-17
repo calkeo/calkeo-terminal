@@ -7,11 +7,13 @@ class MockCommand implements CommandInterface
 {
     protected $name;
     protected $description;
+    protected $aliases = [];
 
-    public function __construct(string $name, string $description)
+    public function __construct(string $name, string $description, array $aliases = [])
     {
         $this->name = $name;
         $this->description = $description;
+        $this->aliases = $aliases;
     }
 
     public function getName(): string
@@ -32,6 +34,11 @@ class MockCommand implements CommandInterface
     public function getUsage(): string
     {
         return $this->name;
+    }
+
+    public function getAliases(): array
+    {
+        return $this->aliases;
     }
 }
 
@@ -87,4 +94,48 @@ test('getHelp returns formatted help information', function () {
     expect($help[0])->toContain('Test command 1');
     expect($help[1])->toContain('test2');
     expect($help[1])->toContain('Test command 2');
+});
+
+// New tests for alias functionality
+test('register adds command aliases to registry', function () {
+    $registry = new CommandRegistry();
+    $command = new MockCommand('test', 'Test command', ['alias1', 'alias2']);
+
+    $registry->register($command);
+
+    expect($registry->has('alias1'))->toBeTrue();
+    expect($registry->has('alias2'))->toBeTrue();
+    expect($registry->get('alias1'))->toBe($command);
+    expect($registry->get('alias2'))->toBe($command);
+});
+
+test('get returns command when using alias', function () {
+    $registry = new CommandRegistry();
+    $command = new MockCommand('test', 'Test command', ['alias1']);
+
+    $registry->register($command);
+
+    expect($registry->get('alias1'))->toBe($command);
+});
+
+test('has returns true for alias', function () {
+    $registry = new CommandRegistry();
+    $command = new MockCommand('test', 'Test command', ['alias1']);
+
+    $registry->register($command);
+
+    expect($registry->has('alias1'))->toBeTrue();
+});
+
+test('getHelp includes aliases in help information', function () {
+    $registry = new CommandRegistry();
+    $command = new MockCommand('test', 'Test command', ['alias1', 'alias2']);
+
+    $registry->register($command);
+
+    $help = $registry->getHelp();
+
+    expect($help[0])->toContain('test');
+    expect($help[0])->toContain('Test command');
+    expect($help[0])->toContain('(aliases: alias1, alias2)');
 });

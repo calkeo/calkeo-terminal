@@ -6,6 +6,7 @@ class TestCommand extends AbstractCommand
 {
     protected $name = 'test';
     protected $description = 'Test command';
+    protected $aliases = ['alias1', 'alias2'];
 
     public function execute(array $args = []): array
     {
@@ -123,4 +124,10 @@ test('createStyledTable creates properly formatted table', function () {
     expect($result)->toContain('Row 1 Col 2');
     expect($result)->toContain('Row 2 Col 1');
     expect($result)->toContain('Row 2 Col 2');
+});
+
+test('getAliases returns command aliases', function () {
+    $command = new TestCommand();
+
+    expect($command->getAliases())->toBe(['alias1', 'alias2']);
 });

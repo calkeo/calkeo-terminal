@@ -32,4 +32,11 @@ interface CommandInterface
      * @return string
      */
     public function getUsage(): string;
+
+    /**
+     * Get command aliases
+     *
+     * @return array
+     */
+    public function getAliases(): array;
 }

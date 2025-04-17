@@ -14,11 +14,19 @@ class CommandRegistry
     protected $commands;
 
     /**
+     * Command aliases
+     *
+     * @var Collection
+     */
+    protected $aliases;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
         $this->commands = new Collection();
+        $this->aliases = new Collection();
     }
 
     /**
@@ -30,6 +38,11 @@ class CommandRegistry
     public function register(CommandInterface $command): void
     {
         $this->commands->put($command->getName(), $command);
+
+        // Register aliases
+        foreach ($command->getAliases() as $alias) {
+            $this->aliases->put($alias, $command->getName());
+        }
     }
 
     /**
@@ -40,6 +53,12 @@ class CommandRegistry
      */
     public function get(string $name): ?CommandInterface
     {
+        // Check if the name is an alias
+        if ($this->aliases->has($name)) {
+            $commandName = $this->aliases->get($name);
+            return $this->commands->get($commandName);
+        }
+
         return $this->commands->get($name);
     }
 
@@ -51,7 +70,7 @@ class CommandRegistry
      */
     public function has(string $name): bool
     {
-        return $this->commands->has($name);
+        return $this->commands->has($name) || $this->aliases->has($name);
     }
 
     /**
@@ -74,10 +93,14 @@ class CommandRegistry
         $help = [];
 
         foreach ($this->commands as $command) {
+            $aliases = $command->getAliases();
+            $aliasesStr = !empty($aliases) ? ' (aliases: ' . implode(', ', $aliases) . ')' : '';
+
             $help[] = sprintf(
-                "%-15s %s",
+                "%-15s %s%s",
                 $command->getName(),
-                $command->getDescription()
+                $command->getDescription(),
+                $aliasesStr
             );
         }
 

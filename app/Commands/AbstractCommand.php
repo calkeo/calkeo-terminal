@@ -26,6 +26,13 @@ abstract class AbstractCommand implements CommandInterface
     protected $hidden = false;
 
     /**
+     * Command aliases
+     *
+     * @var array
+     */
+    protected $aliases = [];
+
+    /**
      * Get the command name
      *
      * @return string
@@ -63,6 +70,16 @@ abstract class AbstractCommand implements CommandInterface
     public function isHidden(): bool
     {
         return $this->hidden;
+    }
+
+    /**
+     * Get command aliases
+     *
+     * @return array
+     */
+    public function getAliases(): array
+    {
+        return $this->aliases;
     }
 
     /**
