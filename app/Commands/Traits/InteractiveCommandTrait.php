@@ -107,4 +107,15 @@ trait InteractiveCommandTrait
      * @return array
      */
     abstract protected function startInteractiveProcess(): array;
+
+    /**
+     * Return interactive output
+     *
+     * @param  array   $output
+     * @return array
+     */
+    protected function interactiveOutput(array $output): array
+    {
+        return array_merge($output, ['__INTERACTIVE__']);
+    }
 }

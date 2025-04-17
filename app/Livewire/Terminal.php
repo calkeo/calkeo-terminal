@@ -70,7 +70,7 @@ class Terminal extends Component
         $this->commandHistory[] = $this->command;
         $this->historyIndex = count($this->commandHistory);
 
-        // If we have a current command, treat the entire input as args
+        // If we have a current command, treat the input as args for that command
         if ($this->currentCommandName) {
             $command = $this->commandRegistry->get($this->currentCommandName);
             $args = [$this->command];
@@ -113,9 +113,10 @@ class Terminal extends Component
             }
 
             // Check if the command is complete (no more steps)
-            if (in_array('__COMPLETE__', $result)) {
+            if (!in_array('__INTERACTIVE__', $result)) {
                 $this->currentCommandName = null;
-                $result = array_diff($result, ['__COMPLETE__']);
+            } else {
+                $result = array_diff($result, ['__INTERACTIVE__']);
             }
 
             $this->output = array_merge($this->output, $result);

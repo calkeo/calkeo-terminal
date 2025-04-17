@@ -53,7 +53,7 @@ class ContactCommand extends AbstractCommand
         $this->clearSession();
         $this->setCurrentStep(self::STEP_SUBJECT);
 
-        return [
+        return $this->interactiveOutput([
             $this->formatOutput("Contact Form", 'header'),
             $this->formatOutput("=================", 'info'),
             "",
@@ -61,7 +61,7 @@ class ContactCommand extends AbstractCommand
             "",
             $this->formatOutput("Please enter the subject of your message:", 'warning'),
             $this->formatOutput("> ", 'command'),
-        ];
+        ]);
     }
 
     protected function handleStep(array $args, int $step): array
@@ -87,22 +87,22 @@ class ContactCommand extends AbstractCommand
     protected function handleSubjectStep(string $input): array
     {
         if (empty($input)) {
-            return [
+            return $this->interactiveOutput([
                 $this->formatOutput("Subject cannot be empty. Please try again:", 'error'),
                 $this->formatOutput("> ", 'command'),
-            ];
+            ]);
         }
 
         // Store subject in session
         $this->setSessionValue(self::SUBJECT_KEY, $input);
         $this->setCurrentStep(self::STEP_SUBJECT_CONFIRM);
 
-        return [
+        return $this->interactiveOutput([
             $this->formatOutput("Subject: " . $input, 'value'),
             "",
             $this->formatOutput("Is this correct? (yes/no):", 'warning'),
             $this->formatOutput("> ", 'command'),
-        ];
+        ]);
     }
 
     protected function handleSubjectConfirmation(string $input): array
@@ -112,41 +112,41 @@ class ContactCommand extends AbstractCommand
         if ($input === 'yes' || $input === 'y') {
             $this->setCurrentStep(self::STEP_MESSAGE);
 
-            return [
+            return $this->interactiveOutput([
                 $this->formatOutput("Great! Now please enter your message:", 'success'),
                 $this->formatOutput("> ", 'command'),
-            ];
+            ]);
         } else {
             // Reset to subject step
             $this->setCurrentStep(self::STEP_SUBJECT);
 
-            return [
+            return $this->interactiveOutput([
                 $this->formatOutput("Let's try again. Please enter the subject:", 'warning'),
                 $this->formatOutput("> ", 'command'),
-            ];
+            ]);
         }
     }
 
     protected function handleMessageStep(string $input): array
     {
         if (empty($input)) {
-            return [
+            return $this->interactiveOutput([
                 $this->formatOutput("Message cannot be empty. Please try again:", 'error'),
                 $this->formatOutput("> ", 'command'),
-            ];
+            ]);
         }
 
         // Store message in session
         $this->setSessionValue(self::MESSAGE_KEY, $input);
         $this->setCurrentStep(self::STEP_MESSAGE_CONFIRM);
 
-        return [
+        return $this->interactiveOutput([
             $this->formatOutput("Message:", 'value'),
             $this->formatOutput($input, 'info'),
             "",
             $this->formatOutput("Is this correct? (yes/no):", 'warning'),
             $this->formatOutput("> ", 'command'),
-        ];
+        ]);
     }
 
     protected function handleMessageConfirmation(string $input): array
@@ -171,16 +171,15 @@ class ContactCommand extends AbstractCommand
                 $this->formatOutput("<a href=\"{$mailtoLink}\" class=\"text-blue-400 hover:underline\">Send Email</a>", 'command'),
                 "",
                 $this->formatOutput("Thank you for your message!", 'success'),
-                '__COMPLETE__', // Signal that the command is complete
             ];
         } else {
             // Reset to message step
             $this->setCurrentStep(self::STEP_MESSAGE);
 
-            return [
+            return $this->interactiveOutput([
                 $this->formatOutput("Let's try again. Please enter your message:", 'warning'),
                 $this->formatOutput("> ", 'command'),
-            ];
+            ]);
         }
     }
 
