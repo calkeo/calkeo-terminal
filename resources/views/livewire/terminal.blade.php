@@ -9,7 +9,7 @@
         <div class="flex-1 bg-black p-4 overflow-hidden flex flex-col">
             <!-- Output Area -->
             <div id="terminal-output"
-                class="flex-1 overflow-y-auto font-['JetBrains_Mono'] text-sm text-green-400 space-y-1 scroll-smooth">
+                class="flex-1 overflow-y-auto font-['JetBrains_Mono'] text-sm text-green-400 space-y-2 scroll-smooth">
                 @foreach($output as $line)
                 <div class="whitespace-pre-wrap leading-relaxed">{!! $line !!}</div>
                 @endforeach

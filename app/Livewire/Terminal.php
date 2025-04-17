@@ -58,7 +58,7 @@ class Terminal extends Component
         $this->showSuggestions = false;
 
         // Add command to output
-        $this->output[] = "\$ " . $this->command;
+        $this->output[] = "<span class='text-cyan-400'>$</span> <span class='text-green-400'>" . htmlspecialchars($this->command) . "</span>";
 
         // Add command to history with timestamp
         $history = Session::get('command_history', []);
