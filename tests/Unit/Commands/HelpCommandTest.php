@@ -32,7 +32,7 @@ test('help command returns formatted help information', function () {
     expect($result[0])->toContain('calkeOS Terminal Help');
     expect($result[1])->toContain('test');
     expect($result[1])->toContain('Test command');
-    expect($result[3])->toContain('help <command>');
+    expect($result[3])->toContain('help &lt;command&gt;');
 });
 
 test('help command with specific command returns detailed help', function () {

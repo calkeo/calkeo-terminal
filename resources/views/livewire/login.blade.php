@@ -1,5 +1,5 @@
 <div class="h-full w-full p-0 m-0 flex items-center justify-center">
-    <div class="w-full max-w-md">
+    <div class="w-full max-w-lg">
         <div class="bg-gray-950 rounded-lg overflow-hidden shadow-2xl">
             <!-- Terminal Header -->
             <div class="flex items-center p-2 bg-gray-950 border-b border-gray-800">

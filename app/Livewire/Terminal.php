@@ -55,6 +55,8 @@ class Terminal extends Component
             return;
         }
 
+        $this->showSuggestions = false;
+
         // Add command to output
         $this->output[] = "\$ " . $this->command;
 
@@ -247,7 +249,6 @@ class Terminal extends Component
 
     public function render()
     {
-        return view('livewire.terminal')
-            ->layout('components.layouts.app');
+        return view('livewire.terminal')->layout('components.layouts.app');
     }
 }
