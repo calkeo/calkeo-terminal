@@ -56,7 +56,9 @@ class HelpCommand extends AbstractCommand
         $headers = ['Command', 'Description'];
         $rows = [];
 
-        $commands = $this->commandRegistry->all();
+        $commands = collect($this->commandRegistry->all())->sortBy(function ($command) {
+            return $command->getName();
+        })->all();
         $commandCount = 0;
 
         foreach ($commands as $command) {
