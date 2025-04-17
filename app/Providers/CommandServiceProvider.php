@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Commands\AboutCommand;
 use App\Commands\CalculatorCommand;
+use App\Commands\ChangelogCommand;
 use App\Commands\ClearCommand;
 use App\Commands\CommandRegistry;
 use App\Commands\ContactCommand;
@@ -38,6 +39,7 @@ class CommandServiceProvider extends ServiceProvider
             $registry->register(new DateCommand());
             $registry->register(new CalculatorCommand());
             $registry->register(new ContactCommand());
+            $registry->register(new ChangelogCommand());
 
             // Add more commands here
 
