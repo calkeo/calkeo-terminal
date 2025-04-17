@@ -1,45 +1,88 @@
 <?php
 
+namespace Tests\Unit\Commands;
+
 use App\Commands\WhoamiCommand;
 use Illuminate\Support\Facades\Session;
+use Tests\TestCase;
 
-test('whoami command returns username from session', function () {
-    // Set up session
-    Session::shouldReceive('get')
-        ->with('terminal_username', 'guest')
-        ->once()
-        ->andReturn('testuser');
+class WhoamiCommandTest extends TestCase
+{
+    protected $command;
 
-    $command = new WhoamiCommand();
-    $result = $command->execute();
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->command = new WhoamiCommand();
+    }
 
-    // Check that the result contains the username
-    expect($result[0])->toBe('testuser');
+    public function test_whoami_command_returns_username_from_session()
+    {
+        // Mock the session
+        Session::shouldReceive('get')
+            ->with('terminal_username', 'guest')
+            ->once()
+            ->andReturn('testuser');
 
-    // Check that the result contains user information
-    expect($result)->toHaveCount(6); // Username + empty line + header + 3 info lines
-    expect($result[2])->toContain('User Information:');
-    expect($result[3])->toContain('uid=');
-    expect($result[3])->toContain('testuser');
-    expect($result[4])->toContain('home=');
-    expect($result[4])->toContain('/home/testuser');
-    expect($result[5])->toContain('host=');
-    expect($result[5])->toContain('calkeos');
-});
+        $output = $this->command->execute();
 
-test('whoami command uses guest as fallback', function () {
-    // Set up session to return null
-    Session::shouldReceive('get')
-        ->with('terminal_username', 'guest')
-        ->once()
-        ->andReturn('guest');
+        // Check that we have all expected lines
+        $this->assertCount(6, $output);
 
-    $command = new WhoamiCommand();
-    $result = $command->execute();
+        // Check username line
+        $this->assertEquals('testuser', $output[0]);
 
-    // Check that the result contains the fallback username
-    expect($result[0])->toBe('guest');
+        // Check empty line
+        $this->assertEquals('', $output[1]);
 
-    // Check that the result contains user information
-    expect($result[4])->toContain('/home/guest');
-});
+        // Check header
+        $this->assertStringContainsString('User Information:', $output[2]);
+
+        // Check user details
+        $this->assertStringContainsString('uid=', $output[3]);
+        $this->assertStringContainsString('testuser', $output[3]);
+
+        // Check home directory
+        $this->assertStringContainsString('home=', $output[4]);
+        $this->assertStringContainsString('/home/testuser', $output[4]);
+
+        // Check hostname
+        $this->assertStringContainsString('host=', $output[5]);
+        $this->assertStringContainsString('calkeos', $output[5]);
+    }
+
+    public function test_whoami_command_uses_guest_as_fallback()
+    {
+        // Mock the session to return guest
+        Session::shouldReceive('get')
+            ->with('terminal_username', 'guest')
+            ->once()
+            ->andReturn('guest');
+
+        $output = $this->command->execute();
+
+        // Check that we have all expected lines
+        $this->assertCount(6, $output);
+
+        // Check username line
+        $this->assertEquals('guest', $output[0]);
+
+        // Check empty line
+        $this->assertEquals('', $output[1]);
+
+        // Check header
+        $this->assertStringContainsString('User Information:', $output[2]);
+
+        // Check user details
+        $this->assertStringContainsString('uid=', $output[3]);
+        $this->assertStringContainsString('guest', $output[3]);
+
+        // Check home directory
+        $this->assertStringContainsString('home=', $output[4]);
+        $this->assertStringContainsString('/home/guest', $output[4]);
+
+        // Check hostname
+        $this->assertStringContainsString('host=', $output[5]);
+        $this->assertStringContainsString('calkeos', $output[5]);
+    }
+}

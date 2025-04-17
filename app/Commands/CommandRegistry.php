@@ -27,6 +27,19 @@ class CommandRegistry
     {
         $this->commands = new Collection();
         $this->aliases = new Collection();
+
+        // Register default commands
+        $this->register(new HelpCommand($this));
+        $this->register(new ClearCommand());
+        $this->register(new DateCommand());
+        $this->register(new EchoCommand());
+        $this->register(new WhoamiCommand());
+        $this->register(new GithubCommand());
+        $this->register(new AboutCommand());
+        $this->register(new ChangelogCommand());
+        $this->register(new CalculatorCommand());
+        $this->register(new SudoCommand());
+        $this->register(new SshCommand());
     }
 
     /**

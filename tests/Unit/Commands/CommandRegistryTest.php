@@ -1,7 +1,11 @@
 <?php
 
+namespace Tests\Unit\Commands;
+
 use App\Commands\CommandInterface;
 use App\Commands\CommandRegistry;
+use App\Commands\SshCommand;
+use Tests\TestCase;
 
 class MockCommand implements CommandInterface
 {
@@ -42,100 +46,170 @@ class MockCommand implements CommandInterface
     }
 }
 
-test('register adds command to registry', function () {
-    $registry = new CommandRegistry();
-    $command = new MockCommand('test', 'Test command');
+class CommandRegistryTest extends TestCase
+{
+    protected $registry;
 
-    $registry->register($command);
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->registry = new CommandRegistry();
+    }
 
-    expect($registry->has('test'))->toBeTrue();
-    expect($registry->get('test'))->toBe($command);
-});
+    public function test_register_adds_command_to_registry()
+    {
+        $command = new MockCommand('test', 'Test command');
+        $this->registry->register($command);
 
-test('get returns null for non-existent command', function () {
-    $registry = new CommandRegistry();
+        $this->assertTrue($this->registry->has('test'));
+        $this->assertSame($command, $this->registry->get('test'));
+    }
 
-    expect($registry->get('nonexistent'))->toBeNull();
-});
+    public function test_get_returns_null_for_non_existent_command()
+    {
+        $this->assertNull($this->registry->get('nonexistent'));
+    }
 
-test('has returns false for non-existent command', function () {
-    $registry = new CommandRegistry();
+    public function test_has_returns_false_for_non_existent_command()
+    {
+        $this->assertFalse($this->registry->has('nonexistent'));
+    }
 
-    expect($registry->has('nonexistent'))->toBeFalse();
-});
+    public function test_all_returns_collection_of_all_registered_commands()
+    {
+        $command1 = new MockCommand('test1', 'Test command 1');
+        $command2 = new MockCommand('test2', 'Test command 2');
 
-test('all returns collection of all registered commands', function () {
-    $registry = new CommandRegistry();
-    $command1 = new MockCommand('test1', 'Test command 1');
-    $command2 = new MockCommand('test2', 'Test command 2');
+        $this->registry->register($command1);
+        $this->registry->register($command2);
 
-    $registry->register($command1);
-    $registry->register($command2);
+        $all = $this->registry->all();
 
-    $all = $registry->all();
+        // Get the count of built-in commands
+        $builtInCommands = $all->count() - 2; // Subtract our 2 test commands
 
-    expect($all->count())->toBe(2);
-    expect($all->get('test1'))->toBe($command1);
-    expect($all->get('test2'))->toBe($command2);
-});
+        $this->assertTrue($all->has('test1'));
+        $this->assertTrue($all->has('test2'));
+        $this->assertSame($command1, $all->get('test1'));
+        $this->assertSame($command2, $all->get('test2'));
+    }
 
-test('getHelp returns formatted help information', function () {
-    $registry = new CommandRegistry();
-    $command1 = new MockCommand('test1', 'Test command 1');
-    $command2 = new MockCommand('test2', 'Test command 2');
+    public function test_getHelp_returns_formatted_help_information()
+    {
+        $command1 = new MockCommand('test1', 'Test command 1');
+        $command2 = new MockCommand('test2', 'Test command 2');
 
-    $registry->register($command1);
-    $registry->register($command2);
+        $this->registry->register($command1);
+        $this->registry->register($command2);
 
-    $help = $registry->getHelp();
+        $help = $this->registry->getHelp();
 
-    expect(count($help))->toBe(2);
-    expect($help[0])->toContain('test1');
-    expect($help[0])->toContain('Test command 1');
-    expect($help[1])->toContain('test2');
-    expect($help[1])->toContain('Test command 2');
-});
+        // Find our test commands in the help output
+        $test1Found = false;
+        $test2Found = false;
 
-// New tests for alias functionality
-test('register adds command aliases to registry', function () {
-    $registry = new CommandRegistry();
-    $command = new MockCommand('test', 'Test command', ['alias1', 'alias2']);
+        foreach ($help as $line) {
+            if (strpos($line, 'test1') === 0) {
+                $test1Found = true;
+                $this->assertStringContainsString('Test command 1', $line);
+            }
+            if (strpos($line, 'test2') === 0) {
+                $test2Found = true;
+                $this->assertStringContainsString('Test command 2', $line);
+            }
+        }
 
-    $registry->register($command);
+        $this->assertTrue($test1Found, 'test1 command not found in help output');
+        $this->assertTrue($test2Found, 'test2 command not found in help output');
+    }
 
-    expect($registry->has('alias1'))->toBeTrue();
-    expect($registry->has('alias2'))->toBeTrue();
-    expect($registry->get('alias1'))->toBe($command);
-    expect($registry->get('alias2'))->toBe($command);
-});
+    public function test_register_adds_command_aliases_to_registry()
+    {
+        $command = new MockCommand('test', 'Test command', ['alias1', 'alias2']);
+        $this->registry->register($command);
 
-test('get returns command when using alias', function () {
-    $registry = new CommandRegistry();
-    $command = new MockCommand('test', 'Test command', ['alias1']);
+        $this->assertTrue($this->registry->has('alias1'));
+        $this->assertTrue($this->registry->has('alias2'));
+        $this->assertSame($command, $this->registry->get('alias1'));
+        $this->assertSame($command, $this->registry->get('alias2'));
+    }
 
-    $registry->register($command);
+    public function test_get_returns_command_when_using_alias()
+    {
+        $command = new MockCommand('test', 'Test command', ['alias1']);
+        $this->registry->register($command);
 
-    expect($registry->get('alias1'))->toBe($command);
-});
+        $this->assertSame($command, $this->registry->get('alias1'));
+    }
 
-test('has returns true for alias', function () {
-    $registry = new CommandRegistry();
-    $command = new MockCommand('test', 'Test command', ['alias1']);
+    public function test_has_returns_true_for_alias()
+    {
+        $command = new MockCommand('test', 'Test command', ['alias1']);
+        $this->registry->register($command);
 
-    $registry->register($command);
+        $this->assertTrue($this->registry->has('alias1'));
+    }
 
-    expect($registry->has('alias1'))->toBeTrue();
-});
+    public function test_getHelp_includes_aliases_in_help_information()
+    {
+        $command = new MockCommand('test', 'Test command', ['alias1', 'alias2']);
+        $this->registry->register($command);
 
-test('getHelp includes aliases in help information', function () {
-    $registry = new CommandRegistry();
-    $command = new MockCommand('test', 'Test command', ['alias1', 'alias2']);
+        $help = $this->registry->getHelp();
 
-    $registry->register($command);
+        $testCommandFound = false;
+        foreach ($help as $line) {
+            if (strpos($line, 'test') === 0) {
+                $testCommandFound = true;
+                $this->assertStringContainsString('Test command', $line);
+                $this->assertStringContainsString('(aliases: alias1, alias2)', $line);
+                break;
+            }
+        }
 
-    $help = $registry->getHelp();
+        $this->assertTrue($testCommandFound, 'Test command not found in help output');
+    }
 
-    expect($help[0])->toContain('test');
-    expect($help[0])->toContain('Test command');
-    expect($help[0])->toContain('(aliases: alias1, alias2)');
-});
+    public function test_command_registry_registers_ssh_command()
+    {
+        // Check that the SSH command is registered
+        $this->assertTrue($this->registry->has('ssh'));
+        $this->assertInstanceOf(SshCommand::class, $this->registry->get('ssh'));
+
+        // Check that the SSH command alias is registered
+        $this->assertTrue($this->registry->has('ssh-connect'));
+        $this->assertInstanceOf(SshCommand::class, $this->registry->get('ssh-connect'));
+    }
+
+    public function test_command_registry_returns_all_commands()
+    {
+        $commands = $this->registry->all();
+
+        // Check that the commands collection is not empty
+        $this->assertNotEmpty($commands);
+
+        // Check that it contains the SSH command
+        $this->assertTrue($commands->has('ssh'));
+        $this->assertInstanceOf(SshCommand::class, $commands->get('ssh'));
+    }
+
+    public function test_command_registry_returns_help_information()
+    {
+        $help = $this->registry->getHelp();
+
+        // Check that the help information is not empty
+        $this->assertNotEmpty($help);
+
+        // Check that it contains the SSH command
+        $hasSshCommand = false;
+        foreach ($help as $line) {
+            if (strpos($line, 'ssh') === 0) {
+                $hasSshCommand = true;
+                $this->assertStringContainsString('Connect to a remote server via SSH', $line);
+                break;
+            }
+        }
+
+        $this->assertTrue($hasSshCommand, 'SSH command not found in help information');
+    }
+}

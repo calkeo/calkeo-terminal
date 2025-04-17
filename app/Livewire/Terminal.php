@@ -17,6 +17,9 @@ class Terminal extends Component
     public $showSuggestions = false;
     public $username = '';
     public $currentCommandName = null;
+    public $delayedOutput = [];
+    public $isProcessingDelayedOutput = false;
+    public $nextDelayedOutputTime = null;
 
     protected $commandRegistry;
     protected $commandParser;
@@ -43,6 +46,9 @@ class Terminal extends Component
         $this->suggestions = [];
         $this->showSuggestions = false;
         $this->currentCommandName = null;
+        $this->delayedOutput = [];
+        $this->isProcessingDelayedOutput = false;
+        $this->nextDelayedOutputTime = null;
 
         // Add welcome message
         $welcomeMessage = new \App\Commands\WelcomeMessage();
@@ -121,10 +127,56 @@ class Terminal extends Component
                 $result = array_diff($result, ['__INTERACTIVE__']);
             }
 
-            $this->output = array_merge($this->output, $result);
+            // Process delayed output
+            $this->delayedOutput = [];
+            foreach ($result as $line) {
+                if (is_array($line) && isset($line['type']) && $line['type'] === 'delayed') {
+                    $this->delayedOutput[] = $line;
+                } else {
+                    $this->output[] = $line;
+                }
+            }
+
+            // Start processing delayed output if any
+            if (!empty($this->delayedOutput)) {
+                $this->isProcessingDelayedOutput = true;
+                $this->processNextDelayedOutput();
+            }
         } else {
             $this->output[] = "<span class=\"text-red-400\">calkeos: command not found: {$commandName}</span>";
             $this->output[] = "<span class=\"text-yellow-400\">Type 'help' to see available commands.</span>";
+        }
+    }
+
+    public function processNextDelayedOutput()
+    {
+        if (empty($this->delayedOutput)) {
+            $this->isProcessingDelayedOutput = false;
+            $this->nextDelayedOutputTime = null;
+            return;
+        }
+
+        $nextOutput = array_shift($this->delayedOutput);
+        $this->output[] = $nextOutput['content'];
+
+        if (!empty($this->delayedOutput)) {
+            $this->nextDelayedOutputTime = now()->addMilliseconds($nextOutput['delay'])->timestamp;
+            $this->dispatch('delayed-output', delay: $nextOutput['delay'])->self();
+        } else {
+            $this->nextDelayedOutputTime = now()->addMilliseconds($nextOutput['delay'])->timestamp;
+            $this->dispatch('delayed-output', delay: $nextOutput['delay'])->self();
+        }
+    }
+
+    public function checkDelayedOutput()
+    {
+        if ($this->isProcessingDelayedOutput && $this->nextDelayedOutputTime && now()->timestamp >= $this->nextDelayedOutputTime) {
+            if (empty($this->delayedOutput)) {
+                $this->isProcessingDelayedOutput = false;
+                $this->nextDelayedOutputTime = null;
+            } else {
+                $this->processNextDelayedOutput();
+            }
         }
     }
 
@@ -249,6 +301,6 @@ class Terminal extends Component
 
     public function render()
     {
-        return view('livewire.terminal')->layout('components.layouts.app');
+        return view('livewire.terminal');
     }
 }
