@@ -7,7 +7,7 @@ use App\Commands\CommandRegistry;
 use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 use Mockery;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class TerminalTest extends TestCase
 {
