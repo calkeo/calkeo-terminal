@@ -78,7 +78,7 @@ class HelpCommand extends AbstractCommand
 
         $output[] = $this->createStyledTable($headers, $rows);
         $output[] = "";
-        $output[] = $this->formatOutput("For more information on a specific command, type: ", 'info') . $this->formatOutput("help <command>", 'command');
+        $output[] = $this->formatOutput("For more information on a specific command, type: ", 'info') . $this->formatOutput("help &lt;command&gt;", 'command');
 
         return $output;
     }
