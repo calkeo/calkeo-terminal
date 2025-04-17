@@ -18,6 +18,8 @@ test('help command returns formatted help information', function () {
         {return 'test [options]';}
         public function isHidden(): bool
         {return false;}
+        public function getAliases(): array
+        {return [];}
     };
 
     // Create a mock registry with the test command
@@ -49,6 +51,8 @@ test('help command with specific command returns detailed help', function () {
         {return 'test [options]';}
         public function isHidden(): bool
         {return false;}
+        public function getAliases(): array
+        {return [];}
     };
 
     // Create a mock registry with the test command
