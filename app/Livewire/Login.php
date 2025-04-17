@@ -9,6 +9,13 @@ class Login extends Component
     public $username = '';
     public $password = '';
     public $error = '';
+    public $tagline = '';
+
+    public function mount()
+    {
+        $taglines = config('terminal.taglines', []);
+        $this->tagline = !empty($taglines) ? $taglines[array_rand($taglines)] : '';
+    }
 
     public function login()
     {
