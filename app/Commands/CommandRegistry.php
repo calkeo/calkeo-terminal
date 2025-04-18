@@ -41,6 +41,7 @@ class CommandRegistry
         $this->register(new SudoCommand());
         $this->register(new SshCommand());
         $this->register(new GamesCommand());
+        $this->register(new RockPaperScissorsCommand());
     }
 
     /**

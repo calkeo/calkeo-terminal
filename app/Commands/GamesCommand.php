@@ -32,6 +32,7 @@ class GamesCommand extends AbstractCommand
             [
                 'name' => 'Rock, Paper, Scissors',
                 'description' => 'The timeless decision maker',
+                'command' => new RockPaperScissorsCommand(),
             ],
             [
                 'name' => 'Battleship',
@@ -65,36 +66,18 @@ class GamesCommand extends AbstractCommand
     {
         $output = [];
 
-        if (count($args) > 0) {
-            $gameName = $args[0];
-            $games = $this->games();
-
-            // Check if the game index is valid
-            if (!isset($games[$args[0] - 1])) {
-                return [
-                    $this->formatOutput('Game not found', 'error'),
-                ];
-            }
-
-            $game = $games[$args[0] - 1];
-
-            if ($game['name'] === 'Global Thermonuclear War') {
-                return $this->globalThermonuclearWar();
-            } else {
-                return [
-                    $this->formatOutput('This game is not available yet', 'error'),
-                    $this->formatOutput('Please try again later', 'error'),
-                ];
-            }
-        }
-
         $output[] = $this->formatOutput('Available Games', 'header');
         $output[] = '===============';
         $output[] = '';
 
         foreach ($this->games() as $key => $game) {
             $output[] = $this->formatOutput($key + 1 . '. ' . $game['name'], 'subheader');
-            $output[] = $this->formatOutput($game['description'], 'normal');
+            $output[] = $this->formatOutput($game['description'], 'white');
+            if (isset($game['command'])) {
+                $output[] = $this->formatOutput('Command: ' . $game['command']->getName(), 'command');
+            } else {
+                $output[] = $this->formatOutput('Coming soon...', 'normal');
+            }
             $output[] = $this->formatOutput('--------------------------------', 'normal');
         }
 
