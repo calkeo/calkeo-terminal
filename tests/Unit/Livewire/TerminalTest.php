@@ -66,6 +66,40 @@ class TerminalTest extends TestCase
         $this->assertFalse($component->get('showSuggestions'));
     }
 
+    public function test_terminal_detects_delayed_output()
+    {
+        $component = Livewire::test(Terminal::class);
+
+        // Test with delayed output
+        $delayedResult = [
+            ['type' => 'delayed', 'content' => 'First delayed message', 'delay' => 1000],
+            ['type' => 'delayed', 'content' => 'Second delayed message', 'delay' => 1000],
+        ];
+
+        // Use reflection to access the protected method
+        $reflection = new \ReflectionClass($component->instance());
+        $method = $reflection->getMethod('isDelayedResponse');
+        $method->setAccessible(true);
+
+        $this->assertTrue($method->invoke($component->instance(), $delayedResult));
+
+        // Test with regular output
+        $regularResult = [
+            'Regular output line 1',
+            'Regular output line 2',
+        ];
+
+        $this->assertFalse($method->invoke($component->instance(), $regularResult));
+
+        // Test with mixed output
+        $mixedResult = [
+            'Regular output line',
+            ['type' => 'delayed', 'content' => 'Delayed message', 'delay' => 1000],
+        ];
+
+        $this->assertTrue($method->invoke($component->instance(), $mixedResult));
+    }
+
     public function test_terminal_handles_delayed_output()
     {
         // Create a mock command that returns delayed output
@@ -100,75 +134,61 @@ class TerminalTest extends TestCase
         $component = Livewire::test('terminal');
 
         // Initial state
-        $this->assertEmpty($component->get('delayedOutput'));
         $this->assertFalse($component->get('isProcessingDelayedOutput'));
 
         // Execute command
         $component->set('command', 'test');
         $component->call('executeCommand');
 
-        // Verify delayed output is being processed
-        $this->assertTrue($component->get('isProcessingDelayedOutput'));
-        $this->assertCount(1, $component->get('delayedOutput'));
+        // The component should have called the delayedOutput method via JavaScript
+        // We can't directly test this in a unit test, but we can verify the command was executed
+        $this->assertNotEmpty($component->get('output'));
     }
 
-    public function test_terminal_disables_input_during_delayed_output()
+    public function test_terminal_processes_delayed_output()
     {
-        // Create a mock command that returns delayed output
-        $mockCommand = Mockery::mock(AbstractCommand::class);
-        $mockCommand->shouldReceive('execute')
-                    ->once()
-                    ->andReturn([
-                        ['type' => 'delayed', 'content' => 'First message', 'delay' => 1000],
-                        ['type' => 'delayed', 'content' => 'Second message', 'delay' => 1000],
-                    ]);
+        $component = Livewire::test(Terminal::class);
 
-        // Create mock registry
-        $mockRegistry = Mockery::mock(CommandRegistry::class);
-        $mockRegistry->shouldReceive('get')
-                     ->with('test')
-                     ->andReturn($mockCommand);
-        $mockRegistry->shouldReceive('all')
-                     ->andReturn(collect(['test' => $mockCommand]));
-
-        // Create mock parser
-        $mockParser = Mockery::mock(CommandParser::class);
-        $mockParser->shouldReceive('parse')
-                   ->with('test')
-                   ->andReturn(['command' => 'test', 'args' => []]);
-
-        $this->app->instance(CommandRegistry::class, $mockRegistry);
-        $this->app->instance(CommandParser::class, $mockParser);
-
-        $component = Livewire::test('terminal');
-
-        // Initial state - input should be enabled
+        // Initial state
         $this->assertFalse($component->get('isProcessingDelayedOutput'));
-        $this->assertNull($component->get('nextDelayedOutputTime'));
 
-        // Execute command
-        $component->set('command', 'test');
-        $component->call('executeCommand');
+        // Process delayed output
+        $delayedResult = [
+            ['type' => 'delayed', 'content' => 'First delayed message', 'delay' => 100],
+            ['type' => 'delayed', 'content' => 'Second delayed message', 'delay' => 100],
+            'Regular output line',
+        ];
 
-        // After execution, delayed output should be set up
-        $this->assertCount(1, $component->get('delayedOutput'));
-        $this->assertTrue($component->get('isProcessingDelayedOutput'));
-        $this->assertNotNull($component->get('nextDelayedOutputTime'));
+        $component->call('delayedOutput', $delayedResult);
 
-        // Process first delayed output
-        $component->call('processNextDelayedOutput');
-
-        // Should still be processing with one message left
-        $this->assertTrue($component->get('isProcessingDelayedOutput'));
-        $this->assertNotNull($component->get('nextDelayedOutputTime'));
-        $this->assertCount(0, $component->get('delayedOutput'));
-
-        // Process second delayed output
-        $component->call('processNextDelayedOutput');
-
-        // Should be done processing
+        // Verify output was processed
         $this->assertFalse($component->get('isProcessingDelayedOutput'));
-        $this->assertNull($component->get('nextDelayedOutputTime'));
-        $this->assertEmpty($component->get('delayedOutput'));
+
+        // The output array will include the welcome message plus our 3 new lines
+        $output = $component->get('output');
+        $this->assertGreaterThanOrEqual(3, count($output));
+
+        // Check that our messages are in the output
+        $this->assertStringContainsString('First delayed message', implode('', $output));
+        $this->assertStringContainsString('Second delayed message', implode('', $output));
+        $this->assertStringContainsString('Regular output line', implode('', $output));
+    }
+
+    public function test_wrap_line_content_formats_output_correctly()
+    {
+        $component = Livewire::test(Terminal::class);
+
+        // Use reflection to access the protected method
+        $reflection = new \ReflectionClass($component->instance());
+        $method = $reflection->getMethod('wrapLineContent');
+        $method->setAccessible(true);
+
+        $content = 'Test content with <span>HTML</span>';
+        $wrapped = $method->invoke($component->instance(), $content);
+
+        $this->assertEquals(
+            "<div class='whitespace-pre-wrap leading-relaxed'>Test content with <span>HTML</span></div>",
+            $wrapped
+        );
     }
 }

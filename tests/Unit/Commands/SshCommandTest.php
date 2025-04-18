@@ -27,8 +27,8 @@ class SshCommandTest extends TestCase
         $this->assertGreaterThan(1, count($output));
 
         // First line should be immediate (not delayed)
-        $this->assertStringContainsString('Connecting to example.com', $output[0]);
-        $this->assertStringContainsString('text-cyan-400', $output[0]); // info style
+        $this->assertStringContainsString('Connecting to example.com', $output[0]['content']);
+        $this->assertStringContainsString('text-cyan-400', $output[0]['content']); // info style
 
         // Check that there are delayed outputs
         $hasDelayedOutput = false;
@@ -38,7 +38,6 @@ class SshCommandTest extends TestCase
                 $this->assertArrayHasKey('delay', $line);
                 $this->assertArrayHasKey('content', $line);
                 $this->assertIsInt($line['delay']);
-                $this->assertGreaterThan(0, $line['delay']);
             }
         }
 

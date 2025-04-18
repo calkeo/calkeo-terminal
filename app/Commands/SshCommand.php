@@ -24,7 +24,7 @@ class SshCommand extends AbstractCommand
         // Initial connection message
         $output[] = [
             'type' => 'delayed',
-            'delay' => 1000,
+            'delay' => 0,
             'content' => $this->formatOutput("Connecting to {$host}...", 'info'),
         ];
 
@@ -43,26 +43,26 @@ class SshCommand extends AbstractCommand
 
         $output[] = [
             'type' => 'delayed',
-            'delay' => 500,
+            'delay' => 0,
             'content' => $this->formatOutput("Are you sure you want to continue connecting (yes/no/[fingerprint])? ", 'info'),
         ];
 
         // Simulate user accepting the connection
         $output[] = [
             'type' => 'delayed',
-            'delay' => 2000,
+            'delay' => 1000,
             'content' => $this->formatOutput("yes", 'command'),
         ];
 
         $output[] = [
             'type' => 'delayed',
-            'delay' => 1500,
+            'delay' => 250,
             'content' => $this->formatOutput("Warning: Permanently added '{$host}' (ECDSA) to the list of known hosts.", 'info'),
         ];
 
         $output[] = [
             'type' => 'delayed',
-            'delay' => 1000,
+            'delay' => 1500,
             'content' => $this->formatOutput("Password: ", 'info'),
         ];
 
@@ -76,13 +76,13 @@ class SshCommand extends AbstractCommand
         // Connection success message
         $output[] = [
             'type' => 'delayed',
-            'delay' => 0,
+            'delay' => 1000,
             'content' => $this->formatOutput("Welcome to Ubuntu 22.04.3 LTS (GNU/Linux 5.15.0-91-generic x86_64)", 'success'),
         ];
 
         $output[] = [
             'type' => 'delayed',
-            'delay' => 1000,
+            'delay' => 0,
             'content' => $this->formatOutput("Last login: " . date('D M j H:i:s T Y'), 'info'),
         ];
 
@@ -107,10 +107,16 @@ class SshCommand extends AbstractCommand
             ];
         }
 
+        $output[] = [
+            'type' => 'delayed',
+            'delay' => 2000,
+            'content' => $this->formatOutput("Well this is awkward...", 'normal'),
+        ];
+
         // Final explosion message
         $output[] = [
             'type' => 'delayed',
-            'delay' => 1000,
+            'delay' => 2000,
             'content' => $this->formatOutput("💥 BOOM! 💥", 'error'),
         ];
 

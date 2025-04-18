@@ -10,16 +10,7 @@
             <!-- Output Area -->
             <div id="terminal-output"
                 class="flex-1 overflow-y-auto font-['JetBrains_Mono'] text-sm text-green-400 space-y-2 scroll-smooth"
-                x-data="{
-                    init() {
-                        // Set up polling for delayed output
-                        setInterval(() => {
-                            if (@entangle('isProcessingDelayedOutput')) {
-                                @this.checkDelayedOutput();
-                            }
-                        }, 100);
-                    }
-                }">
+                wire:stream="output">
                 @foreach($output as $line)
                 <div class="whitespace-pre-wrap leading-relaxed">{!! $line !!}</div>
                 @endforeach

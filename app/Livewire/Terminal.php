@@ -17,9 +17,7 @@ class Terminal extends Component
     public $showSuggestions = false;
     public $username = '';
     public $currentCommandName = null;
-    public $delayedOutput = [];
     public $isProcessingDelayedOutput = false;
-    public $nextDelayedOutputTime = null;
 
     protected $commandRegistry;
     protected $commandParser;
@@ -46,10 +44,7 @@ class Terminal extends Component
         $this->suggestions = [];
         $this->showSuggestions = false;
         $this->currentCommandName = null;
-        $this->delayedOutput = [];
         $this->isProcessingDelayedOutput = false;
-        $this->nextDelayedOutputTime = null;
-
         // Add welcome message
         $welcomeMessage = new \App\Commands\WelcomeMessage();
         $this->output[] = $welcomeMessage->format();
@@ -128,56 +123,54 @@ class Terminal extends Component
             }
 
             // Process delayed output
-            $this->delayedOutput = [];
-            foreach ($result as $line) {
-                if (is_array($line) && isset($line['type']) && $line['type'] === 'delayed') {
-                    $this->delayedOutput[] = $line;
-                } else {
-                    $this->output[] = $line;
-                }
+            if ($this->isDelayedResponse($result)) {
+                $this->js('$wire.delayedOutput(' . json_encode($result) . ');');
+                return;
             }
 
-            // Start processing delayed output if any
-            if (!empty($this->delayedOutput)) {
-                $this->isProcessingDelayedOutput = true;
-                $this->processNextDelayedOutput();
+            foreach ($result as $line) {
+                $this->output[] = $line;
             }
+
         } else {
             $this->output[] = "<span class=\"text-red-400\">calkeos: command not found: {$commandName}</span>";
             $this->output[] = "<span class=\"text-yellow-400\">Type 'help' to see available commands.</span>";
         }
     }
 
-    public function processNextDelayedOutput()
+    public function isDelayedResponse(array $result): bool
     {
-        if (empty($this->delayedOutput)) {
-            $this->isProcessingDelayedOutput = false;
-            $this->nextDelayedOutputTime = null;
-            return;
-        }
 
-        $nextOutput = array_shift($this->delayedOutput);
-        $this->output[] = $nextOutput['content'];
-
-        if (!empty($this->delayedOutput)) {
-            $this->nextDelayedOutputTime = now()->addMilliseconds($nextOutput['delay'])->timestamp;
-            $this->dispatch('delayed-output', delay: $nextOutput['delay'])->self();
-        } else {
-            $this->nextDelayedOutputTime = now()->addMilliseconds($nextOutput['delay'])->timestamp;
-            $this->dispatch('delayed-output', delay: $nextOutput['delay'])->self();
-        }
-    }
-
-    public function checkDelayedOutput()
-    {
-        if ($this->isProcessingDelayedOutput && $this->nextDelayedOutputTime && now()->timestamp >= $this->nextDelayedOutputTime) {
-            if (empty($this->delayedOutput)) {
-                $this->isProcessingDelayedOutput = false;
-                $this->nextDelayedOutputTime = null;
-            } else {
-                $this->processNextDelayedOutput();
+        foreach ($result as $line) {
+            if (is_array($line) && isset($line['type']) && $line['type'] === 'delayed') {
+                return true;
             }
         }
+        return false;
+    }
+
+    public function delayedOutput(array $result)
+    {
+        $this->isProcessingDelayedOutput = true;
+
+        foreach ($result as $line) {
+            if (is_array($line) && isset($line['type']) && $line['type'] === 'delayed') {
+                sleep($line['delay'] / 1000);
+
+                $content = $this->wrapLineContent($line['content']);
+
+                $this->output[] = $line['content'];
+
+                $this->stream(
+                    to: 'output',
+                    content: $content,
+                );
+            } else {
+                $this->output[] = $line;
+            }
+        }
+
+        $this->isProcessingDelayedOutput = false;
     }
 
     public function getPreviousCommand()
@@ -247,6 +240,11 @@ class Terminal extends Component
     {
         $this->command = $suggestion;
         $this->showSuggestions = false;
+    }
+
+    protected function wrapLineContent($content)
+    {
+        return "<div class='whitespace-pre-wrap leading-relaxed'>" . $content . "</div>";
     }
 
     protected function formatWelcomeMessage(): string
