@@ -29,6 +29,7 @@ class GamesCommand extends AbstractCommand
             [
                 'name' => 'Number Guessing',
                 'description' => 'Can you guess the number?',
+                'command' => new NumberGuessingCommand(),
             ],
             [
                 'name' => 'Rock, Paper, Scissors',

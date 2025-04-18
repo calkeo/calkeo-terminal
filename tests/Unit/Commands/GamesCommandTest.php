@@ -50,4 +50,17 @@ class GamesCommandTest extends TestCase
 
         $this->assertEquals($expectedIndexes, $indexes);
     }
+
+    public function test_number_guessing_game_is_included()
+    {
+        $games = $this->command->games();
+        $numberGuessingGame = $games->first(function ($game) {
+            return $game['name'] === 'Number Guessing';
+        });
+
+        $this->assertNotNull($numberGuessingGame);
+        $this->assertEquals('Can you guess the number?', $numberGuessingGame['description']);
+        $this->assertNotNull($numberGuessingGame['command']);
+        $this->assertEquals('numberguess', $numberGuessingGame['command']->getName());
+    }
 }

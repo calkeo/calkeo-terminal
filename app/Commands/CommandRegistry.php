@@ -43,6 +43,7 @@ class CommandRegistry
         $this->register(new GamesCommand());
         $this->register(new RockPaperScissorsCommand());
         $this->register(new GlobalThermonuclearWarCommand());
+        $this->register(new NumberGuessingCommand());
     }
 
     /**
