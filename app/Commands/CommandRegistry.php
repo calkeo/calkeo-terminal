@@ -123,4 +123,17 @@ class CommandRegistry
 
         return $help;
     }
+
+    public function resetStaleInteractiveCommands(): bool
+    {
+        $hasResetInteractiveCommands = false;
+        $this->commands->each(function ($command) use (&$hasResetInteractiveCommands) {
+            if (in_array(\App\Commands\Traits\InteractiveCommandTrait::class, class_uses($command))) {
+                $command->reset();
+                $hasResetInteractiveCommands = true;
+            }
+        });
+
+        return $hasResetInteractiveCommands;
+    }
 }

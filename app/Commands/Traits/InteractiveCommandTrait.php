@@ -118,4 +118,13 @@ trait InteractiveCommandTrait
     {
         return array_merge($output, ['__INTERACTIVE__']);
     }
+
+    public function reset()
+    {
+        $sessionKeys = $this->getSessionKeys();
+        foreach ($sessionKeys as $key) {
+            Session::forget($this->getSessionKey($key));
+        }
+        Session::forget($this->getStepKey());
+    }
 }

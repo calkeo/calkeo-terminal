@@ -35,6 +35,8 @@ class Terminal extends Component
             return $this->redirect('/');
         }
 
+        $this->commandRegistry->resetStaleInteractiveCommands();
+
         // Get username from session
         $this->username = session('terminal_username', 'guest');
 
@@ -195,6 +197,13 @@ class Terminal extends Component
     public function clearCommand()
     {
         $this->command = '';
+        $this->currentCommandName = null;
+
+        $hasReset = $this->commandRegistry->resetStaleInteractiveCommands();
+        if ($hasReset) {
+            // TODO: Don't reset output and just go back to normal input
+            $this->output = [$this->formatWelcomeMessage()];
+        }
     }
 
     public function handleTabCompletion()
