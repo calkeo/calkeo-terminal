@@ -12,6 +12,7 @@ class GamesCommand extends AbstractCommand
             [
                 'name' => 'Global Thermonuclear War',
                 'description' => 'A game of strategy and deception',
+                'command' => new GlobalThermonuclearWarCommand(),
             ],
             [
                 'name' => 'Chess',
@@ -80,53 +81,6 @@ class GamesCommand extends AbstractCommand
             }
             $output[] = $this->formatOutput('--------------------------------', 'normal');
         }
-
-        $output[] = '';
-        $output[] = $this->formatOutput('Usage:', 'header');
-        $output[] = $this->formatOutput('games &lt;game number&gt;', 'command');
-        $output[] = $this->formatOutput('', 'command');
-        $output[] = $this->formatOutput('Example:', 'header');
-        $rockPaperScissorsIndex = collect($this->games())->search(function ($game) {
-            return $game['name'] === 'Rock, Paper, Scissors';
-        }) + 1;
-        $output[] = $this->formatOutput('To play Rock, Paper, Scissors:', 'command');
-        $output[] = $this->formatOutput("games {$rockPaperScissorsIndex}", 'command');
-
-        return $output;
-    }
-
-    private function globalThermonuclearWar(): array
-    {
-        $output = [];
-
-        $output[] = [
-            'type' => 'delayed',
-            'delay' => 0,
-            'content' => $this->formatOutput('Global Thermonuclear War', 'subheader'),
-        ];
-        $output[] = [
-            'type' => 'delayed',
-            'delay' => 0,
-            'content' => $this->formatOutput('=========================', 'subheader'),
-        ];
-
-        $output[] = [
-            'type' => 'delayed',
-            'delay' => 1500,
-            'content' => $this->formatOutput("Greetings Professor Falken.", 'white'),
-        ];
-
-        $output[] = [
-            'type' => 'delayed',
-            'delay' => 3000,
-            'content' => $this->formatOutput("A strange game. The only winning move is not to play.", 'white'),
-        ];
-
-        $output[] = [
-            'type' => 'delayed',
-            'delay' => 3000,
-            'content' => $this->formatOutput("How about a nice game of chess?", 'success'),
-        ];
 
         return $output;
     }
