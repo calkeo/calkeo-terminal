@@ -40,6 +40,7 @@ class CommandRegistry
         $this->register(new CalculatorCommand());
         $this->register(new SudoCommand());
         $this->register(new SshCommand());
+        $this->register(new GamesCommand());
     }
 
     /**

@@ -103,6 +103,7 @@ abstract class AbstractCommand implements CommandInterface
             'header' => 'text-cyan-400 font-bold',
             'subheader' => 'text-yellow-400 font-semibold',
             'normal' => 'text-gray-400',
+            'white' => 'text-white',
         ];
 
         $class = $styles[$style] ?? $styles['default'];
