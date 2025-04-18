@@ -133,7 +133,7 @@ class Terminal extends Component
             }
 
         } else {
-            $this->output[] = "<span class=\"text-red-400\">calkeos: command not found: {$commandName}</span>";
+            $this->output[] = "<span class=\"text-red-400\">Command not found: {$commandName}</span>";
             $this->output[] = "<span class=\"text-yellow-400\">Type 'help' to see available commands.</span>";
         }
     }
