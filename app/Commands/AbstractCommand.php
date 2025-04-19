@@ -111,6 +111,11 @@ abstract class AbstractCommand implements CommandInterface
         return "<span class=\"{$class}\">{$text}</span>";
     }
 
+    protected function lineBreak(): string
+    {
+        return '<br>';
+    }
+
     /**
      * Create a styled box container
      *
