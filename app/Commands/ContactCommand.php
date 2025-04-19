@@ -9,7 +9,7 @@ class ContactCommand extends AbstractCommand
     use InteractiveCommandTrait;
 
     protected $name = 'contact';
-    protected $description = 'Send a message via email (interactive)';
+    protected $description = 'Send a message via email';
 
     // Contact information
     protected $email = 'contact@example.com';
