@@ -16,6 +16,7 @@
             </div>
 
             <!-- Command Input -->
+            @unless($hideInput)
             <div class="flex items-center mt-3">
                 @if(!$currentCommandName)
                 <span class="text-cyan-400 mr-2 text-sm">{{ $username }}@calkeo.dev:</span>
@@ -24,12 +25,14 @@
                 @else
                 <span class="text-purple-400 mr-1 text-sm">&gt;</span>
                 @endif
-                <input type="text" wire:model="command" wire:keydown.enter="executeCommand"
+
+                <input type="text" id="terminal-input" wire:model="command" wire:keydown.enter="executeCommand"
                     wire:keydown.up.prevent="getPreviousCommand" wire:keydown.down.prevent="getNextCommand"
                     wire:keydown.ctrl.c.prevent="clearCommand" wire:keydown.tab.prevent="handleTabCompletion"
                     class="flex-1 bg-transparent border-none outline-none @if(!$currentCommandName) text-green-400 @else text-purple-400 @endif focus:ring-0 text-sm"
                     @if(!$currentCommandName) placeholder="Type a command..." @endif autofocus>
             </div>
+            @endunless
 
             <!-- Suggestions -->
             @if($showSuggestions && count($suggestions) > 0)
@@ -47,37 +50,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    // Function to scroll to the bottom of the terminal output
-    function scrollToBottom() {
-        const terminalContainer = document.getElementById('terminal-container');
-        if (terminalContainer) {
-            terminalContainer.scrollTop = terminalContainer.scrollHeight;
-        }
-    }
-
-    // Scroll to bottom when the component updates
-    document.addEventListener('livewire:update', scrollToBottom);
-
-    // Also scroll after any DOM changes
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initial scroll
-        scrollToBottom();
-
-        // Set up a MutationObserver to watch for changes in the terminal output
-        const terminalContent = document.getElementById('terminal-output');
-        if (terminalContent) {
-            const observer = new MutationObserver(scrollToBottom);
-            observer.observe(terminalContent, { childList: true, subtree: true });
-        }
-
-        // Also scroll after a short delay to ensure content is rendered
-        setTimeout(scrollToBottom, 100);
-    });
-
-    // Scroll after any Livewire event
-    document.addEventListener('livewire:load', scrollToBottom);
-    document.addEventListener('livewire:navigated', scrollToBottom);
-    document.addEventListener('livewire:initialized', scrollToBottom);
-</script>

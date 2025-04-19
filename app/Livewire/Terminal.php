@@ -18,6 +18,7 @@ class Terminal extends Component
     public $username = '';
     public $currentCommandName = null;
     public $isProcessingDelayedOutput = false;
+    public $hideInput = false;
 
     protected $commandRegistry;
     protected $commandParser;
@@ -47,6 +48,8 @@ class Terminal extends Component
         $this->showSuggestions = false;
         $this->currentCommandName = null;
         $this->isProcessingDelayedOutput = false;
+        $this->hideInput = false;
+
         // Add welcome message
         $welcomeMessage = new \App\Commands\WelcomeMessage();
         $this->output[] = $welcomeMessage->format();
@@ -137,6 +140,7 @@ class Terminal extends Component
 
             // Process delayed output
             if ($this->isDelayedResponse($result)) {
+                $this->hideInput = true;
                 $this->js('$wire.delayedOutput(' . json_encode($result) . ');');
                 return;
             }
@@ -184,6 +188,8 @@ class Terminal extends Component
         }
 
         $this->isProcessingDelayedOutput = false;
+        $this->hideInput = false;
+        $this->dispatch('focusInput');
     }
 
     public function getPreviousCommand()

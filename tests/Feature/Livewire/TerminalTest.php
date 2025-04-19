@@ -95,4 +95,24 @@ class TerminalTest extends TestCase
         );
     }
 
+    #[Test]
+    public function test_it_can_toggle_input_visibility()
+    {
+        $component = Livewire::test(Terminal::class);
+
+        // Initially, input should be visible
+        $component->assertSet('hideInput', false);
+        $html = $component->html();
+        $this->assertStringContainsString('id="terminal-input"', $html);
+
+        // Hide the input
+        $component->set('hideInput', true);
+        $html = $component->html();
+        $this->assertStringNotContainsString('id="terminal-input"', $html);
+
+        // Show the input again
+        $component->set('hideInput', false);
+        $html = $component->html();
+        $this->assertStringContainsString('id="terminal-input"', $html);
+    }
 }
