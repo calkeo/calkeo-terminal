@@ -71,7 +71,6 @@ class NumberGuessingCommand extends AbstractCommand
             $this->formatOutput("3. Hard (1-200, 5 attempts)", 'normal'),
             "",
             $this->formatOutput("Enter your choice (1-3):", 'warning'),
-            $this->formatOutput("> ", 'command'),
         ]);
     }
 
@@ -99,7 +98,6 @@ class NumberGuessingCommand extends AbstractCommand
         if (!in_array($input, ['1', '2', '3'])) {
             return $this->interactiveOutput([
                 $this->formatOutput("Invalid choice! Please enter 1, 2, or 3:", 'error'),
-                $this->formatOutput("> ", 'command'),
             ]);
         }
 
@@ -148,7 +146,6 @@ class NumberGuessingCommand extends AbstractCommand
             $this->formatOutput("Can you guess it?", 'white'),
             "",
             $this->formatOutput("Enter your guess:", 'warning'),
-            $this->formatOutput("> ", 'command'),
         ]);
     }
 
@@ -163,7 +160,6 @@ class NumberGuessingCommand extends AbstractCommand
         if (!is_numeric($input)) {
             return $this->interactiveOutput([
                 $this->formatOutput("Invalid input! Please enter a number:", 'error'),
-                $this->formatOutput("> ", 'command'),
             ]);
         }
 
@@ -198,7 +194,6 @@ class NumberGuessingCommand extends AbstractCommand
                 // $this->formatOutput("It took you " . ($this->getSessionValue(self::ATTEMPTS_KEY, 0) - $attempts) . " attempts.", 'info'),
                 "",
                 $this->formatOutput("Want to play again? (yes/no):", 'warning'),
-                $this->formatOutput("> ", 'command'),
             ]);
         }
 
@@ -211,7 +206,6 @@ class NumberGuessingCommand extends AbstractCommand
                 $this->formatOutput("The number was {$targetNumber}.", 'info'),
                 "",
                 $this->formatOutput("Want to play again? (yes/no):", 'warning'),
-                $this->formatOutput("> ", 'command'),
             ]);
         }
 
@@ -223,7 +217,6 @@ class NumberGuessingCommand extends AbstractCommand
             $this->formatOutput("Attempts remaining: {$attempts}", 'info'),
             "",
             $this->formatOutput("Enter your guess:", 'warning'),
-            $this->formatOutput("> ", 'command'),
         ]);
     }
 
@@ -244,7 +237,6 @@ class NumberGuessingCommand extends AbstractCommand
                 $this->formatOutput("3. Hard (1-200, 5 attempts)", 'normal'),
                 "",
                 $this->formatOutput("Enter your choice (1-3):", 'warning'),
-                $this->formatOutput("> ", 'command'),
             ]);
         } else {
             // End the game

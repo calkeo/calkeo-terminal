@@ -199,11 +199,7 @@ class Terminal extends Component
         $this->command = '';
         $this->currentCommandName = null;
 
-        $hasReset = $this->commandRegistry->resetStaleInteractiveCommands();
-        if ($hasReset) {
-            // TODO: Don't reset output and just go back to normal input
-            $this->output = [$this->formatWelcomeMessage()];
-        }
+        $this->commandRegistry->resetStaleInteractiveCommands();
     }
 
     public function handleTabCompletion()

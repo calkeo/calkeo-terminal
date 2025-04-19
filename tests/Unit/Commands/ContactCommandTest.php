@@ -22,7 +22,7 @@ class ContactCommandTest extends TestCase
         $output = $command->execute();
 
         // Check that the output contains the initial form
-        $this->assertCount(8, $output);
+        $this->assertCount(7, $output);
         $this->assertStringContainsString('Contact Form', $output[0]);
         $this->assertStringContainsString('You are about to send a message to', $output[3]);
         $this->assertStringContainsString('Please enter the subject of your message:', $output[5]);

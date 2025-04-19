@@ -6,26 +6,29 @@
         </div>
 
         <!-- Terminal Content -->
-        <div class="flex-1 bg-black p-4 overflow-hidden flex flex-col">
+        <div class="flex-1 bg-black p-4 overflow-y-auto font-['JetBrains_Mono'] text-sm text-green-400 space-y-2 scroll-smooth"
+            id="terminal-container">
             <!-- Output Area -->
-            <div id="terminal-output"
-                class="flex-1 overflow-y-auto font-['JetBrains_Mono'] text-sm text-green-400 space-y-2 scroll-smooth"
-                wire:stream="output">
+            <div id="terminal-output" wire:stream="output">
                 @foreach($output as $line)
                 <div class="whitespace-pre-wrap leading-relaxed">{!! $line !!}</div>
                 @endforeach
             </div>
 
             <!-- Command Input -->
-            <div class="flex items-center mt-3 font-['JetBrains_Mono']">
+            <div class="flex items-center mt-3">
+                @if(!$currentCommandName)
                 <span class="text-cyan-400 mr-2 text-sm">{{ $username }}@calkeo.dev:</span>
                 <span class="text-yellow-500 mr-1 text-sm">~</span>
                 <span class="text-green-400 mr-2 text-sm">$</span>
+                @else
+                <span class="text-purple-400 mr-1 text-sm">&gt;</span>
+                @endif
                 <input type="text" wire:model="command" wire:keydown.enter="executeCommand"
                     wire:keydown.up.prevent="getPreviousCommand" wire:keydown.down.prevent="getNextCommand"
                     wire:keydown.ctrl.c.prevent="clearCommand" wire:keydown.tab.prevent="handleTabCompletion"
-                    class="flex-1 bg-transparent border-none outline-none text-green-400 focus:ring-0 text-sm"
-                    placeholder="Type a command..." autofocus @if($isProcessingDelayedOutput) disabled @endif>
+                    class="flex-1 bg-transparent border-none outline-none @if(!$currentCommandName) text-green-400 @else text-purple-400 @endif focus:ring-0 text-sm"
+                    @if(!$currentCommandName) placeholder="Type a command..." @endif autofocus>
             </div>
 
             <!-- Suggestions -->
@@ -48,9 +51,9 @@
 <script>
     // Function to scroll to the bottom of the terminal output
     function scrollToBottom() {
-        const outputArea = document.getElementById('terminal-output');
-        if (outputArea) {
-            outputArea.scrollTop = outputArea.scrollHeight;
+        const terminalContainer = document.getElementById('terminal-container');
+        if (terminalContainer) {
+            terminalContainer.scrollTop = terminalContainer.scrollHeight;
         }
     }
 
@@ -63,10 +66,10 @@
         scrollToBottom();
 
         // Set up a MutationObserver to watch for changes in the terminal output
-        const outputArea = document.getElementById('terminal-output');
-        if (outputArea) {
+        const terminalContent = document.getElementById('terminal-output');
+        if (terminalContent) {
             const observer = new MutationObserver(scrollToBottom);
-            observer.observe(outputArea, { childList: true, subtree: true });
+            observer.observe(terminalContent, { childList: true, subtree: true });
         }
 
         // Also scroll after a short delay to ensure content is rendered

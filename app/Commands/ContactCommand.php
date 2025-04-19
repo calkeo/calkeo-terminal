@@ -60,7 +60,6 @@ class ContactCommand extends AbstractCommand
             $this->formatOutput("You are about to send a message to {$this->contactName} ({$this->email})", 'info'),
             "",
             $this->formatOutput("Please enter the subject of your message:", 'warning'),
-            $this->formatOutput("> ", 'command'),
         ]);
     }
 
@@ -89,7 +88,6 @@ class ContactCommand extends AbstractCommand
         if (empty($input)) {
             return $this->interactiveOutput([
                 $this->formatOutput("Subject cannot be empty. Please try again:", 'error'),
-                $this->formatOutput("> ", 'command'),
             ]);
         }
 
@@ -101,7 +99,6 @@ class ContactCommand extends AbstractCommand
             $this->formatOutput("Subject: " . $input, 'value'),
             "",
             $this->formatOutput("Is this correct? (yes/no):", 'warning'),
-            $this->formatOutput("> ", 'command'),
         ]);
     }
 
@@ -114,7 +111,6 @@ class ContactCommand extends AbstractCommand
 
             return $this->interactiveOutput([
                 $this->formatOutput("Great! Now please enter your message:", 'success'),
-                $this->formatOutput("> ", 'command'),
             ]);
         } else {
             // Reset to subject step
@@ -122,7 +118,6 @@ class ContactCommand extends AbstractCommand
 
             return $this->interactiveOutput([
                 $this->formatOutput("Let's try again. Please enter the subject:", 'warning'),
-                $this->formatOutput("> ", 'command'),
             ]);
         }
     }
@@ -132,7 +127,6 @@ class ContactCommand extends AbstractCommand
         if (empty($input)) {
             return $this->interactiveOutput([
                 $this->formatOutput("Message cannot be empty. Please try again:", 'error'),
-                $this->formatOutput("> ", 'command'),
             ]);
         }
 
@@ -145,7 +139,6 @@ class ContactCommand extends AbstractCommand
             $this->formatOutput($input, 'info'),
             "",
             $this->formatOutput("Is this correct? (yes/no):", 'warning'),
-            $this->formatOutput("> ", 'command'),
         ]);
     }
 
@@ -178,7 +171,6 @@ class ContactCommand extends AbstractCommand
 
             return $this->interactiveOutput([
                 $this->formatOutput("Let's try again. Please enter your message:", 'warning'),
-                $this->formatOutput("> ", 'command'),
             ]);
         }
     }

@@ -113,6 +113,7 @@ class TerminalTest extends TestCase
 
         // Create mock registry that returns our mock command
         $mockRegistry = Mockery::mock(CommandRegistry::class);
+        $mockRegistry->shouldReceive('resetStaleInteractiveCommands');
         $mockRegistry->shouldReceive('get')
                      ->with('test')
                      ->andReturn($mockCommand);
