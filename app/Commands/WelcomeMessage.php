@@ -17,7 +17,7 @@ class WelcomeMessage
 
         // Header
         $html .= '<div class="bg-gray-800 px-2 py-1 border-b border-gray-700">';
-        $html .= '<span class="text-cyan-400 font-bold">calkeOS Terminal v1.0.0</span>';
+        $html .= '<span class="text-cyan-400 font-bold">' . config('app.name') . ' Terminal ' . config('app.version') . '</span>';
         $html .= '</div>';
 
         // Content
@@ -50,7 +50,7 @@ class WelcomeMessage
 
         // Welcome message
         $html .= '<div class="font-mono text-sm my-2">';
-        $html .= 'Welcome to <span class="text-cyan-400">calkeOS v1.0.0</span> (GNU/Linux 6.9.420 x86_64)<br><br>';
+        $html .= 'Welcome to <span class="text-cyan-400">' . config('app.name') . ' ' . config('app.version') . '</span> (GNU/Linux 6.9.420 x86_64)<br><br>';
         $html .= '<span class="text-yellow-400">*</span> Documentation: <span class="text-blue-400">https://docs.calkeos.dev</span><br>';
         $html .= '<span class="text-yellow-400">*</span> Management: <span class="text-blue-400">https://manage.calkeos.dev</span><br>';
         $html .= '<span class="text-yellow-400">*</span> Support: <span class="text-blue-400">https://support.calkeos.dev</span> <span class="text-pink-400">(Premium support available!)</span>';

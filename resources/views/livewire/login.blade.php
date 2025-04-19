@@ -9,7 +9,7 @@
             <!-- Login Content -->
             <div class="p-6 bg-black">
                 <div class="space-y-4 font-['JetBrains_Mono'] text-green-400">
-                    <div class="text-cyan-400">Welcome to calkeOS v1.0.0</div>
+                    <div class="text-cyan-400">Welcome to {{ config('app.name') }} {{ config('app.version') }}</div>
                     <div class="text-sm text-gray-200">{{ $tagline }}</div>
 
                     <!-- Subtle hint -->
