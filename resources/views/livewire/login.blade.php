@@ -10,7 +10,11 @@
             <div class="p-6 bg-black">
                 <div class="space-y-4 font-['JetBrains_Mono'] text-green-400">
                     <div class="text-cyan-400">Welcome to calkeOS v1.0.0</div>
-                    <div class="text-sm text-gray-500">{{ $tagline }}</div>
+                    <div class="text-sm text-gray-200">{{ $tagline }}</div>
+
+                    <!-- Subtle hint -->
+                    <div class="text-xs text-gray-600 italic">Enter any credentials to continue...</div>
+
                     <div class="flex items-center">
                         <span class="mr-2">Username:</span>
                         <input type="text" wire:model="username" wire:keydown.enter="focusPassword"

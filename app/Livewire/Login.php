@@ -29,7 +29,7 @@ class Login extends Component
         if (!empty($this->username) && !empty($this->password)) {
             // Store login state and username in session
             session(['terminal_logged_in' => true, 'terminal_username' => $this->username]);
-            return $this->redirect('/terminal');
+            return $this->redirect('/');
         }
 
         $this->error = 'Invalid username or password';
@@ -42,7 +42,6 @@ class Login extends Component
 
     public function render()
     {
-        return view('livewire.login')
-            ->layout('components.layouts.app');
+        return view('livewire.login');
     }
 }

@@ -128,7 +128,7 @@ class Terminal extends Component
             if (in_array('__LOGOUT__', $result)) {
                 $this->output = array_merge($this->output, array_diff($result, ['__LOGOUT__']));
                 $this->currentCommandName = null;
-                return $this->redirect('/');
+                return $this->redirect('/login');
             }
 
             // Check if the command is complete (no more steps)

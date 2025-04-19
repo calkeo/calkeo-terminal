@@ -76,5 +76,8 @@ return [
         "Where The Learning Curve Resembles A Brick Wall",
         "Confusing Interns And CEOs Equally Since The 1970s",
         "Putting The 'Command' Back In 'Command Line'",
+        "A terminal with personality",
+        "Your command-line adventure awaits",
+        "Where typing leads to discovery",
     ],
 ];
