@@ -52,8 +52,19 @@ class Terminal extends Component
         $this->output[] = $welcomeMessage->format();
     }
 
+    public function exception($e, $stopPropagation)
+    {
+        \Sentry\captureException($e);
+
+        $this->output[] = "<span class=\"text-red-400\">Oops! Something went wrong and my creator has been notified.</span>";
+        $this->output[] = "<span class=\"text-red-400\">Rest assured, he WILL be disciplined.</span>";
+
+        $stopPropagation();
+    }
+
     public function executeCommand()
     {
+
         if (empty($this->command)) {
             return;
         }
