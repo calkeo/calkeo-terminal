@@ -139,6 +139,7 @@ return [
         // App\Providers\EventServiceProvider::class,
         // App\Providers\RouteServiceProvider::class,
         App\Providers\CommandServiceProvider::class,
+        App\Providers\BotDetectorServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -154,4 +155,5 @@ return [
 
     'version' => 'v0.1.0',
 
+    'test_bot_views' => env('TEST_BOT_VIEWS', false),
 ];

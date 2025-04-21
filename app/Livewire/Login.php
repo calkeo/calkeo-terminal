@@ -13,6 +13,10 @@ class Login extends Component
 
     public function mount()
     {
+        if (session('terminal_logged_in')) {
+            return $this->redirect('/');
+        }
+
         $taglines = config('terminal.taglines', []);
         $this->tagline = !empty($taglines) ? $taglines[array_rand($taglines)] : '';
     }

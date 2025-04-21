@@ -37,9 +37,13 @@ class Terminal extends Component
 
     public function mount()
     {
+        if (request()->attributes->get('is_bot', false)) {
+            return $this->render();
+        }
+
         // Check if user is logged in
         if (!session('terminal_logged_in')) {
-            return $this->redirect('/');
+            return $this->redirect('/login');
         }
 
         $this->commandRegistry->resetStaleInteractiveCommands();
@@ -294,6 +298,9 @@ class Terminal extends Component
 
     public function render()
     {
+        if (request()->attributes->get('is_bot', false)) {
+            return view('bot.terminal')->layout('layouts.empty');
+        }
         return view('livewire.terminal');
     }
 }
