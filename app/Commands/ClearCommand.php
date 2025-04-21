@@ -24,7 +24,8 @@ class ClearCommand extends AbstractCommand
      */
     public function execute(Terminal $terminal, array $args = []): array
     {
-        // Return a special marker that the terminal component will recognize
-        return ['__CLEAR__'];
+        // Set the clear state in the terminal's command state
+        $terminal->getCommandState()->set('clear', true);
+        return [];
     }
 }

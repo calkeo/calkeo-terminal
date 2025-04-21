@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Commands\CommandParser;
 use App\Commands\CommandRegistry;
+use App\Commands\CommandState;
 use App\Commands\WelcomeMessage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -21,15 +22,16 @@ class Terminal extends Component
     public $currentCommandName = null;
     public $isProcessingDelayedOutput = false;
     public $hideInput = false;
-    public $fullScreenOutput = false;
 
     protected $commandRegistry;
     protected $commandParser;
+    protected $commandState;
 
     public function boot(CommandRegistry $registry, CommandParser $parser)
     {
         $this->commandRegistry = $registry;
         $this->commandParser = $parser;
+        $this->commandState = new CommandState();
     }
 
     public function mount()
@@ -52,7 +54,7 @@ class Terminal extends Component
         $this->currentCommandName = null;
         $this->isProcessingDelayedOutput = false;
         $this->hideInput = false;
-        $this->fullScreenOutput = false;
+        $this->commandState->clear();
 
         // Add welcome message
         $welcomeMessage = new WelcomeMessage();
@@ -76,7 +78,6 @@ class Terminal extends Component
 
     public function executeCommand()
     {
-
         if (empty($this->command)) {
             return;
         }
@@ -127,9 +128,10 @@ class Terminal extends Component
             $result = $command->execute($this, $args);
 
             // Handle special clear command
-            if ($result === ['__CLEAR__']) {
+            if ($this->commandState->has('clear')) {
                 $this->output = [(new WelcomeMessage())->format()];
                 $this->currentCommandName = null;
+                $this->commandState->clear();
                 return;
             }
 
@@ -137,6 +139,7 @@ class Terminal extends Component
             if (in_array('__LOGOUT__', $result)) {
                 $this->output = array_merge($this->output, array_diff($result, ['__LOGOUT__']));
                 $this->currentCommandName = null;
+                $this->commandState->clear();
                 return $this->redirect('/login');
             }
 
@@ -166,7 +169,6 @@ class Terminal extends Component
 
     public function isDelayedResponse(array $result): bool
     {
-
         foreach ($result as $line) {
             if (is_array($line) && isset($line['type']) && $line['type'] === 'delayed') {
                 return true;
@@ -224,6 +226,7 @@ class Terminal extends Component
     {
         $this->command = '';
         $this->currentCommandName = null;
+        $this->commandState->clear();
 
         $this->commandRegistry->resetStaleInteractiveCommands();
     }
@@ -280,6 +283,16 @@ class Terminal extends Component
     protected function wrapLineContent($content)
     {
         return "<div class='whitespace-pre-wrap leading-relaxed'>" . $content . "</div>";
+    }
+
+    /**
+     * Get the command state
+     *
+     * @return CommandState
+     */
+    public function getCommandState(): CommandState
+    {
+        return $this->commandState;
     }
 
     public function render()
