@@ -5,40 +5,13 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>@yield('title') - calkeOS</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        @vite(['resources/css/dashboard.css', 'resources/js/app.js'])
         <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700" rel="stylesheet">
-        <script>
-            tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
-                        },
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['Courier New', 'monospace'],
-                    },
-                },
-            },
-        }
-        </script>
         <style>
             [x-cloak] {
                 display: none !important;
             }
         </style>
-        @yield('additional_styles')
     </head>
 
     <body class="bg-gray-50 text-gray-800 font-sans">

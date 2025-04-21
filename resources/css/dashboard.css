@@ -1,0 +1,534 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/satire/**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+:root {
+    --primary-50: #eef2ff;
+    --primary-100: #e0e7ff;
+    --primary-200: #c7d2fe;
+    --primary-300: #a5b4fc;
+    --primary-400: #818cf8;
+    --primary-500: #6366f1;
+    --primary-600: #4f46e5;
+    --primary-700: #4338ca;
+    --primary-800: #3730a3;
+    --primary-900: #312e81;
+}
+
+.terminal-window {
+    background-color: #1a1a1a;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.terminal-header {
+    background-color: #2d2d2d;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.terminal-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.terminal-content {
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    color: #f0f0f0;
+    line-height: 1.5;
+}
+
+.terminal-prompt {
+    color: #00ff00;
+}
+
+.terminal-command {
+    color: #ffffff;
+}
+
+.terminal-output {
+    color: #cccccc;
+}
+
+.terminal-highlight {
+    color: #00ffff;
+}
+
+.terminal-error {
+    color: #ff5555;
+}
+
+.terminal-success {
+    color: #55ff55;
+}
+
+.terminal-warning {
+    color: #ffff55;
+}
+
+.terminal-info {
+    color: #5555ff;
+}
+
+.terminal-code {
+    background-color: #2d2d2d;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    margin: 0.5rem 0;
+}
+
+.terminal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.terminal-table th,
+.terminal-table td {
+    border: 1px solid #444;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.terminal-table th {
+    background-color: #2d2d2d;
+}
+
+.terminal-note {
+    border-left: 3px solid #5555ff;
+    padding-left: 1rem;
+    margin: 1rem 0;
+}
+
+.terminal-warning-box {
+    border-left: 3px solid #ffff55;
+    padding-left: 1rem;
+    margin: 1rem 0;
+}
+
+.terminal-error-box {
+    border-left: 3px solid #ff5555;
+    padding-left: 1rem;
+    margin: 1rem 0;
+}
+
+.terminal-success-box {
+    border-left: 3px solid #55ff55;
+    padding-left: 1rem;
+    margin: 1rem 0;
+}
+
+.terminal-tip {
+    background-color: #2d2d2d;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    margin: 1rem 0;
+}
+
+.terminal-ascii {
+    font-family: monospace;
+    white-space: pre;
+    margin: 1rem 0;
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.dashboard-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.progress-bar {
+    height: 0.5rem;
+    background-color: #e5e7eb;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 0.25rem;
+    transition: width 1s ease-in-out;
+}
+
+.chart-container {
+    height: 200px;
+    position: relative;
+}
+
+.chart-bar {
+    position: absolute;
+    bottom: 0;
+    width: 30px;
+    background-color: #4f46e5;
+    border-radius: 0.25rem 0.25rem 0 0;
+    transition: height 1s ease-in-out;
+}
+
+.chart-label {
+    position: absolute;
+    bottom: -1.5rem;
+    width: 30px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-online {
+    background-color: #10b981;
+}
+
+.status-offline {
+    background-color: #ef4444;
+}
+
+.status-warning {
+    background-color: #f59e0b;
+}
+
+.status-unknown {
+    background-color: #6b7280;
+}
+
+.notification {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-info {
+    background-color: #e0e7ff;
+    border-left: 3px solid #4f46e5;
+}
+
+.notification-warning {
+    background-color: #fef3c7;
+    border-left: 3px solid #f59e0b;
+}
+
+.notification-error {
+    background-color: #fee2e2;
+    border-left: 3px solid #ef4444;
+}
+
+.notification-success {
+    background-color: #d1fae5;
+    border-left: 3px solid #10b981;
+}
+
+.blink {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+.ticket-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1rem;
+}
+
+.ticket-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ticket-body {
+    padding: 1rem;
+}
+
+.ticket-footer {
+    padding: 0.75rem 1rem;
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-open {
+    background-color: #d1fae5;
+    color: #059669;
+}
+
+.status-closed {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.status-in-progress {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+}
+
+.agent-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.typing-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: #9ca3af;
+    margin-right: 0.25rem;
+    animation: typing 1s infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-0.5rem);
+    }
+}
+
+.response {
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    position: relative;
+}
+
+.response::before {
+    content: '';
+    position: absolute;
+    top: -0.5rem;
+    left: 1rem;
+    width: 0;
+    height: 0;
+    border-left: 0.5rem solid transparent;
+    border-right: 0.5rem solid transparent;
+    border-bottom: 0.5rem solid #f3f4f6;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    min-height: 6rem;
+    resize: vertical;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #4f46e5;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #4338ca;
+}
+
+.btn-secondary {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background-color: #d1d5db;
+}
+
+.ticket-id {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.ticket-time {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.ticket-title {
+    font-weight: 600;
+    color: #111827;
+}
+
+.ticket-description {
+    color: #4b5563;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.ticket-meta {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.ticket-meta-item {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+}
+
+.ticket-meta-icon {
+    margin-right: 0.25rem;
+}
+
+.new-ticket {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

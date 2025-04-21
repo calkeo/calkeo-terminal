@@ -11,7 +11,7 @@
         <link href="https://fonts.bunny.net/css?family=jetbrains-mono:400,500,600,700" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/terminal.css', 'resources/js/app.js'])
     </head>
 
     <body class="antialiased bg-black h-full m-0 p-0 font-['JetBrains_Mono']">
