@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Commands;
+
+use App\Commands\Traits\InteractiveCommandTrait;
+
+class {{ className }} extends AbstractCommand
+{
+    use InteractiveCommandTrait;
+
+    protected $name = '{{ commandName }}';
+    protected $description = 'Description of the interactive command';
+
+    // Session keys
+    protected const STEP_KEY = 'step';
+
+    // Step definitions
+    protected const STEP_INITIAL = 1;
+    protected const STEP_PROCESS = 2;
+
+    public function execute(array $args = []): array
+    {
+        // Get current step from session
+        $step = $this->getCurrentStep();
+
+        // If we have arguments or are in the middle of a process, handle the step
+        if (!empty($args) || $step > 1) {
+            return $this->handleStep($args, $step);
+        }
+
+        // Start the interactive process
+        return $this->startInteractiveProcess();
+    }
+
+    protected function getSessionKeys(): array
+    {
+        return [
+            self::STEP_KEY,
+        ];
+    }
+
+    protected function startInteractiveProcess(): array
+    {
+        // Reset session data
+        $this->clearSession();
+        $this->setCurrentStep(self::STEP_INITIAL);
+
+        return $this->interactiveOutput([
+            $this->formatOutput("Interactive Command", 'header'),
+            $this->formatOutput("===================", 'subheader'),
+            "",
+            $this->formatOutput("Welcome to the interactive command!", 'info'),
+            "",
+            $this->formatOutput("Enter your input:", 'warning'),
+        ]);
+    }
+
+    protected function handleStep(array $args, int $step): array
+    {
+        switch ($step) {
+            case self::STEP_INITIAL:
+                // Handle initial step
+                $this->setCurrentStep(self::STEP_PROCESS);
+                return $this->interactiveOutput([
+                    $this->formatOutput("Processing your input...", 'info'),
+                ]);
+
+            case self::STEP_PROCESS:
+                // Handle processing step
+                $this->clearSession();
+                return [
+                    $this->formatOutput("Command completed!", 'success'),
+                ];
+
+            default:
+                $this->clearSession();
+                return [
+                    $this->formatOutput("Invalid step!", 'error'),
+                ];
+        }
+    }
+}

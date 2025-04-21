@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Commands\VersionCommand;
 use Illuminate\Support\Collection;
 
 class CommandRegistry
@@ -44,6 +45,7 @@ class CommandRegistry
         $this->register(new RockPaperScissorsCommand());
         $this->register(new GlobalThermonuclearWarCommand());
         $this->register(new NumberGuessingCommand());
+        $this->register(new VersionCommand());
     }
 
     /**
