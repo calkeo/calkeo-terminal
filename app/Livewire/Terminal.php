@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Commands\CommandParser;
 use App\Commands\CommandRegistry;
 use App\Commands\WelcomeMessage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 
@@ -63,7 +64,12 @@ class Terminal extends Component
         $this->output[] = "<span class=\"text-red-400\">Oops! Something went wrong and my creator has been notified.</span>";
         $this->output[] = "<span class=\"text-red-400\">Rest assured, he WILL be disciplined.</span>";
 
-        $stopPropagation();
+        Log::error($e);
+
+        if (in_array(app()->environment(), ['production', 'testing'])) {
+            $stopPropagation();
+        }
+
     }
 
     public function executeCommand()
@@ -146,8 +152,24 @@ class Terminal extends Component
                 return;
             }
 
+            // Handle commands that contain JS
+            $jsCommands = [];
+            if (in_array('__JS__', $result)) {
+                foreach ($result as $key => $line) {
+                    if (is_array($line) && isset($line['type']) && $line['type'] === 'js') {
+                        $jsCommands[] = $line['js'];
+                        unset($result[$key]);
+                    }
+                }
+                $result = array_diff($result, ['__JS__']);
+            }
+
             foreach ($result as $line) {
                 $this->output[] = $line;
+            }
+
+            foreach ($jsCommands as $jsCommand) {
+                $this->js($jsCommand);
             }
 
         } else {

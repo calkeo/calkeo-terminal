@@ -15,6 +15,11 @@ class SudoCommand extends AbstractCommand
             return [
                 $this->formatOutput("Nice try! But I like my files where they are.", 'warning'),
                 $this->formatOutput("Permission denied: You don't have the authority to delete my existence!", 'error'),
+                [
+                    'type' => 'js',
+                    'js' => 'setTimeout(() => window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank"), 2000);',
+                ],
+                '__JS__',
             ];
         }
 
