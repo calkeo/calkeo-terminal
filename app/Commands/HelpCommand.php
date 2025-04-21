@@ -82,6 +82,10 @@ class HelpCommand extends AbstractCommand
         $output[] = "";
         $output[] = $this->formatOutput("For more information on a specific command, type: ", 'info') . $this->formatOutput("help &lt;command&gt;", 'command');
 
+        // Add a subtle hint about hidden commands
+        $output[] = "";
+        $output[] = $this->formatOutput("Some commands prefer to remain in the shadows...", 'normal');
+
         return $output;
     }
 }
