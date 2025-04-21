@@ -16,7 +16,7 @@ class ChangelogCommandTest extends TestCase
         parent::setUp();
 
         $this->command = new ChangelogCommand();
-        $this->changelogPath = base_path('APP_CHANGES.md');
+        $this->changelogPath = base_path('resources/files/CHANGELOG.md');
 
         // Create a temporary changelog file for testing
         if (!File::exists($this->changelogPath)) {

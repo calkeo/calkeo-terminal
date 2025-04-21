@@ -24,7 +24,7 @@ class ChangelogCommand extends AbstractCommand
         $output = [];
 
         // Path to the changelog file
-        $changelogPath = base_path('APP_CHANGES.md');
+        $changelogPath = base_path('resources/files/CHANGELOG.md');
 
         // Check if the file exists
         if (!file_exists($changelogPath)) {
