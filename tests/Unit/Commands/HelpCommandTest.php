@@ -30,7 +30,7 @@ test('help command returns formatted help information', function () {
     $result = $command->execute();
 
     // Check that the result contains the help information
-    expect($result)->toHaveCount(4); // Header + table + empty line + help info
+    expect($result)->toHaveCount(6); // Header + table + empty line + help info
     expect($result[0])->toContain('calkeOS Terminal Help');
     expect($result[1])->toContain('test');
     expect($result[1])->toContain('Test command');
