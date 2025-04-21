@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Commands\PrivacyCommand;
 use App\Commands\VersionCommand;
 use Illuminate\Support\Collection;
 
@@ -46,6 +47,7 @@ class CommandRegistry
         $this->register(new GlobalThermonuclearWarCommand());
         $this->register(new NumberGuessingCommand());
         $this->register(new VersionCommand());
+        $this->register(new PrivacyCommand());
     }
 
     /**
