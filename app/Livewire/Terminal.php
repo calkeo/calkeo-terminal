@@ -132,7 +132,6 @@ class Terminal extends Component
             if ($this->commandState->has(CommandStates::CLEAR)) {
                 $this->output = [(new WelcomeMessage())->format()];
                 $this->currentCommandName = null;
-                $this->commandState->clear();
                 return;
             }
 
@@ -140,15 +139,12 @@ class Terminal extends Component
             if ($this->commandState->has(CommandStates::LOGOUT)) {
                 $this->output = $result;
                 $this->currentCommandName = null;
-                $this->commandState->clear();
                 return $this->redirect('/login');
             }
 
             // Check if the command is complete (no more steps)
             if (!$this->commandState->has(CommandStates::INTERACTIVE)) {
                 $this->currentCommandName = null;
-            } else {
-                $result = array_diff($result, ['__INTERACTIVE__']);
             }
 
             // Process delayed output
@@ -161,8 +157,6 @@ class Terminal extends Component
             foreach ($result as $line) {
                 $this->output[] = $line;
             }
-
-            $this->commandState->clear();
 
         } else {
             $this->output[] = "<span class=\"text-red-400\">Command not found: {$commandName}</span>";

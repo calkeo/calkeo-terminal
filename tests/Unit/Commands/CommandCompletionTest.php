@@ -88,6 +88,7 @@ class CommandCompletionTest extends TestCase
         $this->assertEquals('contact', $this->terminal->currentCommandName);
 
         // Confirm message (completes the command)
+        $this->terminal->boot($this->commandRegistry, $this->commandParser);
         $this->terminal->command = 'yes';
         $this->terminal->executeCommand();
 
@@ -112,6 +113,8 @@ class CommandCompletionTest extends TestCase
 
         $this->terminal->command = 'Test Message';
         $this->terminal->executeCommand();
+
+        $this->terminal->boot($this->commandRegistry, $this->commandParser);
 
         $this->terminal->command = 'yes';
         $this->terminal->executeCommand();
@@ -151,6 +154,7 @@ class CommandCompletionTest extends TestCase
         $this->terminal->output = [];
 
         // Run a new command
+        $this->terminal->boot($this->commandRegistry, $this->commandParser);
         $this->terminal->command = 'help';
         $this->terminal->executeCommand();
 
