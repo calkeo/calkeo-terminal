@@ -2,6 +2,8 @@
 
 namespace App\Commands;
 
+use Illuminate\Support\Str;
+
 class WelcomeMessage
 {
     /**
@@ -13,49 +15,86 @@ class WelcomeMessage
     {
         $date = date('D M j H:i:s T Y');
 
-        $html = '<div class="font-mono text-sm border border-gray-700 rounded-sm my-2">';
+        $html = <<<HTML
+        <div class="font-mono text-sm border border-gray-700 rounded-sm my-2">
+            <!-- Header -->
+            <div class="bg-gray-800 px-2 py-1 border-b border-gray-700">
+                <span class="text-cyan-400 font-bold">{$this->getAppName()} Terminal {$this->getAppVersion()}</span>
+            </div>
 
-        // Header
-        $html .= '<div class="bg-gray-800 px-2 py-1 border-b border-gray-700">';
-        $html .= '<span class="text-cyan-400 font-bold">' . config('app.name') . ' Terminal ' . config('app.version') . '</span>';
-        $html .= '</div>';
+            <!-- Content -->
+            <div class="p-2">
+                <!-- Features -->
+                <div class="mb-2">
+                    <span class="text-yellow-400">*</span> Now with 100% more terminal!<br>
+                    <span class="text-yellow-400">*</span> Featuring the revolutionary "help" command<br>
+                    <span class="text-yellow-400">*</span> Includes state-of-the-art "clear" technology<br>
+                    <span class="text-yellow-400">*</span> Powered by pure caffeine and determination
+                </div>
 
-        // Content
-        $html .= '<div class="p-2">';
+                <!-- System info -->
+                <div class="mb-2">
+                    System information as of <span class="text-cyan-400">{$date}</span><br>
+                    Kernel: <span class="text-blue-400">6.9.420</span> (GNU/Linux x86_64)<br>
+                    CPU: <span class="text-blue-400">Intel(R) Caffeine(TM) i9 9999K @ 4.20GHz</span><br>
+                    Memory: <span class="text-blue-400">42GB of pure determination</span><br>
+                    Disk: <span class="text-blue-400">1TB of possibilities</span>
+                </div>
 
-        // Features
-        $html .= '<div class="mb-2">';
-        $html .= '<span class="text-yellow-400">*</span> Now with 100% more terminal!<br>';
-        $html .= '<span class="text-yellow-400">*</span> Featuring the revolutionary "help" command<br>';
-        $html .= '<span class="text-yellow-400">*</span> Includes state-of-the-art "clear" technology<br>';
-        $html .= '<span class="text-yellow-400">*</span> Powered by pure caffeine and determination';
-        $html .= '</div>';
+                <!-- Help text -->
+                <div class="mb-2">
+                    Type <span class="text-purple-400">help</span> to see available commands
+                </div>
+            </div>
+        </div>
 
-        // System info
-        $html .= '<div class="mb-2">';
-        $html .= 'System information as of <span class="text-cyan-400">' . $date . '</span><br>';
-        $html .= 'Kernel: <span class="text-blue-400">6.9.420</span> (GNU/Linux x86_64)<br>';
-        $html .= 'CPU: <span class="text-blue-400">Intel(R) Caffeine(TM) i9 9999K @ 4.20GHz</span><br>';
-        $html .= 'Memory: <span class="text-blue-400">42GB of pure determination</span><br>';
-        $html .= 'Disk: <span class="text-blue-400">1TB of possibilities</span>';
-        $html .= '</div>';
+        <!-- Welcome message -->
+        <div class="font-mono text-sm my-2">
+            Welcome to <span class="text-cyan-400">{$this->getAppName()} {$this->getAppVersion()}</span> (GNU/Linux 6.9.420 x86_64)<br><br>
+            <span class="text-yellow-400">*</span> Documentation: <span class="text-blue-400">https://docs.calkeos.dev</span><br>
+            <span class="text-yellow-400">*</span> Management: <span class="text-blue-400">https://manage.calkeos.dev</span><br>
+            <span class="text-yellow-400">*</span> Support: <span class="text-blue-400">https://support.calkeos.dev</span> <span class="text-pink-400">(Premium support available!)</span>
+        </div>
+HTML;
 
-        // Help text
-        $html .= '<div class="mb-2">';
-        $html .= 'Type <span class="text-purple-400">help</span> to see available commands';
-        $html .= '</div>';
+        return $this->cleanHtml($html);
+    }
 
-        $html .= '</div>'; // End content
-        $html .= '</div>'; // End box
+    /**
+     * Clean HTML by removing unwanted whitespace and newlines
+     *
+     * @param  string   $html
+     * @return string
+     */
+    private function cleanHtml(string $html): string
+    {
+        // Remove comments
+        $html = preg_replace('/<!--.*?-->/s', '', $html);
 
-        // Welcome message
-        $html .= '<div class="font-mono text-sm my-2">';
-        $html .= 'Welcome to <span class="text-cyan-400">' . config('app.name') . ' ' . config('app.version') . '</span> (GNU/Linux 6.9.420 x86_64)<br><br>';
-        $html .= '<span class="text-yellow-400">*</span> Documentation: <span class="text-blue-400">https://docs.calkeos.dev</span><br>';
-        $html .= '<span class="text-yellow-400">*</span> Management: <span class="text-blue-400">https://manage.calkeos.dev</span><br>';
-        $html .= '<span class="text-yellow-400">*</span> Support: <span class="text-blue-400">https://support.calkeos.dev</span> <span class="text-pink-400">(Premium support available!)</span>';
-        $html .= '</div>';
+        // Use Laravel's Str facade to clean the HTML
+        return Str::of($html)
+            ->replaceMatches('/>\s+</', '><')
+            ->replaceMatches('/\s+/', ' ')
+            ->trim();
+    }
 
-        return $html;
+    /**
+     * Get the application name
+     *
+     * @return string
+     */
+    private function getAppName(): string
+    {
+        return config('app.name');
+    }
+
+    /**
+     * Get the application version
+     *
+     * @return string
+     */
+    private function getAppVersion(): string
+    {
+        return config('app.version');
     }
 }
