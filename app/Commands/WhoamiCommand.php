@@ -8,6 +8,7 @@ class WhoamiCommand extends AbstractCommand
 {
     protected $name = 'whoami';
     protected $description = 'Display the current username';
+    protected $hidden = true;
 
     public function execute(array $args = []): array
     {
