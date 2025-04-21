@@ -3,16 +3,19 @@
 namespace Tests\Unit\Commands;
 
 use App\Commands\PrivacyCommand;
-use PHPUnit\Framework\TestCase;
+use App\Livewire\Terminal;
+use Tests\TestCase;
 
 class PrivacyCommandTest extends TestCase
 {
     private PrivacyCommand $command;
+    private Terminal $terminal;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->command = new PrivacyCommand();
+        $this->terminal = new Terminal();
     }
 
     public function test_command_has_correct_name_and_description()
@@ -23,7 +26,7 @@ class PrivacyCommandTest extends TestCase
 
     public function test_command_output_contains_required_sections()
     {
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
 
         // Convert output array to string for easier searching
         $outputString = implode('', $output);
@@ -44,7 +47,7 @@ class PrivacyCommandTest extends TestCase
 
     public function test_command_output_contains_contact_information()
     {
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
         $outputString = implode('', $output);
 
         $this->assertStringContainsString('mail@calkeo.dev', $outputString);
@@ -52,7 +55,7 @@ class PrivacyCommandTest extends TestCase
 
     public function test_command_output_contains_data_retention_information()
     {
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
         $outputString = implode('', $output);
 
         $this->assertStringContainsString('Any data collected during your session', $outputString);

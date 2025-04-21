@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Commands\Traits\InteractiveCommandTrait;
+use App\Livewire\Terminal;
 
 class NumberGuessingCommand extends AbstractCommand
 {
@@ -30,7 +31,14 @@ class NumberGuessingCommand extends AbstractCommand
     protected const DIFFICULTY_MEDIUM = 'medium';
     protected const DIFFICULTY_HARD = 'hard';
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         // Get current step from session
         $step = $this->getCurrentStep();

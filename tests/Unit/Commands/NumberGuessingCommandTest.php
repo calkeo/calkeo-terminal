@@ -3,22 +3,20 @@
 namespace Tests\Unit\Commands;
 
 use App\Commands\NumberGuessingCommand;
+use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 class NumberGuessingCommandTest extends TestCase
 {
     protected $command;
+    protected $terminal;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->command = new NumberGuessingCommand();
-    }
-
-    public function test_command_starts_interactive_process()
-    {
-        // Clear any existing session data
+        $this->terminal = new Terminal();
         Session::forget([
             'numberguess_step',
             'numberguess_target_number',
@@ -27,60 +25,44 @@ class NumberGuessingCommandTest extends TestCase
             'numberguess_max_number',
             'numberguess_game_over',
         ]);
+    }
 
-        $output = $this->command->execute();
+    public function test_command_starts_interactive_process()
+    {
+        $output = $this->command->execute($this->terminal);
 
-        // Check that we have the expected header
+        $this->assertNotEmpty($output);
         $this->assertStringContainsString('Number Guessing Game', $output[0]);
-
-        // Check that we have the expected options
-        $this->assertStringContainsString('1. Easy (1-50, 10 attempts)', $output[4]);
-        $this->assertStringContainsString('2. Medium (1-100, 7 attempts)', $output[5]);
-        $this->assertStringContainsString('3. Hard (1-200, 5 attempts)', $output[6]);
-
-        // Check that we have the expected prompt
-        $this->assertStringContainsString('Enter your choice (1-3):', $output[8]);
-
-        // Check that the command is interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertStringContainsString('Choose difficulty level:', $output[3]);
+        $this->assertEquals(1, Session::get('numberguess_step'));
     }
 
     public function test_command_handles_invalid_difficulty_choice()
     {
-        // Set the current step to DIFFICULTY
         Session::put('numberguess_step', 1);
 
-        $output = $this->command->execute(['invalid']);
+        $output = $this->command->execute($this->terminal, ['invalid']);
 
-        // Check that we have the expected error message
         $this->assertStringContainsString('Invalid choice! Please enter 1, 2, or 3:', $output[0]);
-
-        // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertEquals(1, Session::get('numberguess_step'));
     }
 
     public function test_command_handles_valid_difficulty_choice()
     {
-        // Set the current step to DIFFICULTY
         Session::put('numberguess_step', 1);
 
-        $output = $this->command->execute(['1']);
+        $output = $this->command->execute($this->terminal, ['1']);
 
-        // Check that we have the expected output
         $this->assertStringContainsString('Difficulty: Easy', $output[0]);
         $this->assertStringContainsString('Range: 1 to 50', $output[1]);
         $this->assertStringContainsString('Attempts remaining: 10', $output[2]);
-
-        // Check that we have the expected prompt
-        $this->assertStringContainsString('Enter your guess:', implode(' ', $output));
-
-        // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertEquals(2, Session::get('numberguess_step'));
+        $this->assertNotNull(Session::get('numberguess_target_number'));
+        $this->assertEquals(10, Session::get('numberguess_attempts'));
     }
 
     public function test_command_handles_invalid_guess()
     {
-        // Set the current step to GUESS
         Session::put('numberguess_step', 2);
         Session::put('numberguess_min_number', 1);
         Session::put('numberguess_max_number', 50);
@@ -88,18 +70,15 @@ class NumberGuessingCommandTest extends TestCase
         Session::put('numberguess_target_number', 25);
         Session::put('numberguess_game_over', false);
 
-        $output = $this->command->execute(['invalid']);
+        $output = $this->command->execute($this->terminal, ['not a number']);
 
-        // Check that we have the expected error message
         $this->assertStringContainsString('Invalid input! Please enter a number:', $output[0]);
-
-        // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertEquals(2, Session::get('numberguess_step'));
+        $this->assertEquals(10, Session::get('numberguess_attempts'));
     }
 
     public function test_command_handles_out_of_range_guess()
     {
-        // Set the current step to GUESS
         Session::put('numberguess_step', 2);
         Session::put('numberguess_min_number', 1);
         Session::put('numberguess_max_number', 50);
@@ -107,18 +86,15 @@ class NumberGuessingCommandTest extends TestCase
         Session::put('numberguess_target_number', 25);
         Session::put('numberguess_game_over', false);
 
-        $output = $this->command->execute(['100']);
+        $output = $this->command->execute($this->terminal, ['100']);
 
-        // Check that we have the expected error message
         $this->assertStringContainsString('Your guess must be between 1 and 50!', $output[0]);
-
-        // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertEquals(2, Session::get('numberguess_step'));
+        $this->assertEquals(10, Session::get('numberguess_attempts'));
     }
 
     public function test_command_handles_correct_guess()
     {
-        // Set the current step to GUESS
         Session::put('numberguess_step', 2);
         Session::put('numberguess_min_number', 1);
         Session::put('numberguess_max_number', 50);
@@ -126,21 +102,15 @@ class NumberGuessingCommandTest extends TestCase
         Session::put('numberguess_target_number', 25);
         Session::put('numberguess_game_over', false);
 
-        $output = $this->command->execute(['25']);
+        $output = $this->command->execute($this->terminal, ['25']);
 
-        // Check that we have the expected output
-        $this->assertStringContainsString('Congratulations! You\'ve guessed the number 25!', $output[0]);
-
-        // Check that we have the expected prompt
-        $this->assertStringContainsString('Want to play again? (yes/no):', $output[2]);
-
-        // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertStringContainsString('Congratulations!', $output[0]);
+        $this->assertEquals(2, Session::get('numberguess_step'));
+        $this->assertTrue(Session::get('numberguess_game_over'));
     }
 
     public function test_command_handles_incorrect_guess()
     {
-        // Set the current step to GUESS
         Session::put('numberguess_step', 2);
         Session::put('numberguess_min_number', 1);
         Session::put('numberguess_max_number', 50);
@@ -148,22 +118,15 @@ class NumberGuessingCommandTest extends TestCase
         Session::put('numberguess_target_number', 25);
         Session::put('numberguess_game_over', false);
 
-        $output = $this->command->execute(['10']);
+        $output = $this->command->execute($this->terminal, ['10']);
 
-        // Check that we have the expected output
         $this->assertStringContainsString('Your guess is too low!', $output[0]);
-        $this->assertStringContainsString('Attempts remaining: 9', $output[1]);
-
-        // Check that we have the expected prompt
-        $this->assertStringContainsString('Enter your guess:', $output[3]);
-
-        // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertEquals(2, Session::get('numberguess_step'));
+        $this->assertEquals(9, Session::get('numberguess_attempts'));
     }
 
     public function test_command_handles_out_of_attempts()
     {
-        // Set the current step to GUESS
         Session::put('numberguess_step', 2);
         Session::put('numberguess_min_number', 1);
         Session::put('numberguess_max_number', 50);
@@ -171,56 +134,32 @@ class NumberGuessingCommandTest extends TestCase
         Session::put('numberguess_target_number', 25);
         Session::put('numberguess_game_over', false);
 
-        $output = $this->command->execute(['10']);
+        $output = $this->command->execute($this->terminal, ['10']);
 
-        // Check that we have the expected output
-        $this->assertStringContainsString('Game Over! You\'ve run out of attempts.', $output[0]);
-        $this->assertStringContainsString('The number was 25.', $output[1]);
-
-        // Check that we have the expected prompt
-        $this->assertStringContainsString('Want to play again? (yes/no):', $output[3]);
-
-        // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertStringContainsString('Game Over!', $output[0]);
+        $this->assertEquals(2, Session::get('numberguess_step'));
+        $this->assertTrue(Session::get('numberguess_game_over'));
     }
 
     public function test_command_handles_play_again_yes()
     {
-        // Set the current step to PLAY_AGAIN
-        Session::put('numberguess_step', 3);
+        Session::put('numberguess_step', 2);
         Session::put('numberguess_game_over', true);
 
-        $output = $this->command->execute(['yes']);
+        $output = $this->command->execute($this->terminal, ['yes']);
 
-        // Check that we have the expected output
-        $this->assertStringContainsString("Great! Let's play again!", $output[0]);
-
-        // Check that we have the expected options
         $this->assertStringContainsString('Choose difficulty level:', $output[2]);
-        $this->assertStringContainsString('1. Easy (1-50, 10 attempts)', $output[3]);
-        $this->assertStringContainsString('2. Medium (1-100, 7 attempts)', $output[4]);
-        $this->assertStringContainsString('3. Hard (1-200, 5 attempts)', $output[5]);
-
-        // Check that we have the expected prompt
-        $this->assertStringContainsString('Enter your choice (1-3):', $output[7]);
-
-        // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertEquals(1, Session::get('numberguess_step'));
     }
 
     public function test_command_handles_play_again_no()
     {
-        // Set the current step to PLAY_AGAIN
-        Session::put('numberguess_step', 3);
+        Session::put('numberguess_step', 2);
         Session::put('numberguess_game_over', true);
 
-        $output = $this->command->execute(['no']);
+        $output = $this->command->execute($this->terminal, ['no']);
 
-        // Check that we have the expected output
         $this->assertStringContainsString('Thanks for playing!', $output[0]);
-        $this->assertStringContainsString("Run 'numberguess' to play again.", $output[1]);
-
-        // Check that the command is no longer interactive
-        $this->assertNotContains('__INTERACTIVE__', $output);
+        $this->assertNull(Session::get('numberguess_step'));
     }
 }

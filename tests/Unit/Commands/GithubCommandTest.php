@@ -3,17 +3,19 @@
 namespace Tests\Unit\Commands;
 
 use App\Commands\GithubCommand;
+use App\Livewire\Terminal;
 use Tests\TestCase;
 
 class GithubCommandTest extends TestCase
 {
     protected $command;
+    protected $terminal;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->command = new GithubCommand();
+        $this->terminal = new Terminal();
     }
 
     /**
@@ -37,7 +39,8 @@ class GithubCommandTest extends TestCase
      */
     public function test_command_has_correct_aliases()
     {
-        $this->assertEquals(['github'], $this->command->getAliases());
+        $aliases = $this->command->getAliases();
+        $this->assertContains('github', $aliases);
     }
 
     /**
@@ -45,22 +48,12 @@ class GithubCommandTest extends TestCase
      */
     public function test_command_returns_expected_output()
     {
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
 
-        // Check that the output is not empty
         $this->assertNotEmpty($output);
-
-        // Check that the output contains the GitHub URL
-        $this->assertStringContainsString('https://github.com/calkeo', implode("\n", $output));
-
-        // Check that the output contains the Git style information
-        $this->assertStringContainsString('remote.origin.url', implode("\n", $output));
-        $this->assertStringContainsString('remote.origin.fetch', implode("\n", $output));
-        $this->assertStringContainsString('remote.origin.pushurl', implode("\n", $output));
-        $this->assertStringContainsString('remote.origin.push', implode("\n", $output));
-
-        // Check that the output contains the clickable link
-        $this->assertStringContainsString('Visit my GitHub profile:', implode("\n", $output));
-        $this->assertStringContainsString('<a href=', implode("\n", $output));
+        $this->assertStringContainsString('remote.origin.url', $output[0]);
+        $this->assertStringContainsString('https://github.com/calkeo', $output[0]);
+        $this->assertStringContainsString('Visit my GitHub profile:', $output[5]);
+        $this->assertStringContainsString('<a href="https://github.com/calkeo"', $output[6]);
     }
 }

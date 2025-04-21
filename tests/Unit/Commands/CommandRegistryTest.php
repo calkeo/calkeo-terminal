@@ -5,6 +5,7 @@ namespace Tests\Unit\Commands;
 use App\Commands\CommandInterface;
 use App\Commands\CommandRegistry;
 use App\Commands\SshCommand;
+use App\Livewire\Terminal;
 use Tests\TestCase;
 
 class MockCommand implements CommandInterface
@@ -30,7 +31,7 @@ class MockCommand implements CommandInterface
         return $this->description;
     }
 
-    public function execute(array $args = []): array
+    public function execute(Terminal $terminal, array $args = []): array
     {
         return ['Mock command executed'];
     }

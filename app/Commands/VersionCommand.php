@@ -2,6 +2,8 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 class VersionCommand extends AbstractCommand
 {
     protected $name = 'version';
@@ -9,7 +11,14 @@ class VersionCommand extends AbstractCommand
     protected $aliases = ['v', 'ver', '-v', '--version'];
     protected $hidden = true;
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         $output = [];
 

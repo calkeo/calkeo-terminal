@@ -3,6 +3,7 @@
 namespace Tests\Unit\Commands;
 
 use App\Commands\RockPaperScissorsCommand;
+use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 use Nette\Utils\ReflectionMethod;
 use ReflectionClass;
@@ -11,11 +12,13 @@ use Tests\TestCase;
 class RockPaperScissorsCommandTest extends TestCase
 {
     protected $command;
+    protected $terminal;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->command = new RockPaperScissorsCommand();
+        $this->terminal = new Terminal();
     }
 
     public function test_command_starts_interactive_process()
@@ -23,7 +26,7 @@ class RockPaperScissorsCommandTest extends TestCase
         // Clear any existing session data
         Session::forget(['rps_step', 'rps_choice', 'rps_computer_choice', 'rps_result']);
 
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
 
         // Check that we have the expected header
         $this->assertStringContainsString('Rock, Paper, Scissors', $output[0]);
@@ -45,7 +48,7 @@ class RockPaperScissorsCommandTest extends TestCase
         // Set the current step to CHOICE
         Session::put('rps_step', 1);
 
-        $output = $this->command->execute(['invalid']);
+        $output = $this->command->execute($this->terminal, ['invalid']);
 
         // Check that we have the expected error message
         $this->assertStringContainsString('Invalid choice! Please enter 1, 2, or 3:', $output[0]);
@@ -59,7 +62,7 @@ class RockPaperScissorsCommandTest extends TestCase
         // Set the current step to CHOICE
         Session::put('rps_step', 1);
 
-        $output = $this->command->execute(['1']);
+        $output = $this->command->execute($this->terminal, ['1']);
 
         // Check that we have the expected output
         $this->assertStringContainsString('You chose: Rock 🪨', $output[0]);
@@ -77,7 +80,7 @@ class RockPaperScissorsCommandTest extends TestCase
         // Set the current step to RESULT
         Session::put('rps_step', 2);
 
-        $output = $this->command->execute(['yes']);
+        $output = $this->command->execute($this->terminal, ['yes']);
 
         // Check that we have the expected output
         $this->assertStringContainsString("Great! Let's play again!", $output[0]);
@@ -100,7 +103,7 @@ class RockPaperScissorsCommandTest extends TestCase
         // Set the current step to RESULT
         Session::put('rps_step', 2);
 
-        $output = $this->command->execute(['no']);
+        $output = $this->command->execute($this->terminal, ['no']);
 
         // Check that we have the expected output
         $this->assertStringContainsString('Thanks for playing!', $output[0]);

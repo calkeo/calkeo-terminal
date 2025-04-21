@@ -2,6 +2,8 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 class ClearCommand extends AbstractCommand
 {
     /**
@@ -16,10 +18,11 @@ class ClearCommand extends AbstractCommand
     /**
      * Execute the command
      *
-     * @param  array   $args
+     * @param  Terminal $terminal
+     * @param  array    $args
      * @return array
      */
-    public function execute(array $args = []): array
+    public function execute(Terminal $terminal, array $args = []): array
     {
         // Return a special marker that the terminal component will recognize
         return ['__CLEAR__'];

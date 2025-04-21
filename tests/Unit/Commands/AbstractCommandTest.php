@@ -1,6 +1,7 @@
 <?php
 
 use App\Commands\AbstractCommand;
+use App\Livewire\Terminal;
 
 class TestCommand extends AbstractCommand
 {
@@ -8,7 +9,7 @@ class TestCommand extends AbstractCommand
     protected $description = 'Test command';
     protected $aliases = ['alias1', 'alias2'];
 
-    public function execute(array $args = []): array
+    public function execute(Terminal $terminal, array $args = []): array
     {
         return ['Test command executed'];
     }

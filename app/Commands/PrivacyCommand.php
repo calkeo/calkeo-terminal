@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
 use Illuminate\Support\Carbon;
 
 class PrivacyCommand extends AbstractCommand
@@ -9,7 +10,7 @@ class PrivacyCommand extends AbstractCommand
     protected $name = 'privacy';
     protected $description = 'Show the privacy policy of the application';
 
-    public function execute(array $args = []): array
+    public function execute(Terminal $terminal, array $args = []): array
     {
         $lastUpdated = Carbon::parse('2025-04-21')->format('F j, Y');
 

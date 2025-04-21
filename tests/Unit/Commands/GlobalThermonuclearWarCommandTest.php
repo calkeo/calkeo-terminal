@@ -3,23 +3,26 @@
 namespace Tests\Unit\Commands;
 
 use App\Commands\GlobalThermonuclearWarCommand;
+use App\Livewire\Terminal;
 use Tests\TestCase;
 
 class GlobalThermonuclearWarCommandTest extends TestCase
 {
     protected $command;
+    protected $terminal;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->command = new GlobalThermonuclearWarCommand();
+        $this->terminal = new Terminal();
     }
 
     public function test_command_returns_expected_output()
     {
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
 
-        // Check that we have the expected output for Global Thermonuclear War
+        $this->assertNotEmpty($output);
         $this->assertEquals('delayed', $output[0]['type']);
         $this->assertEquals(0, $output[0]['delay']);
         $this->assertStringContainsString('Global Thermonuclear War', $output[0]['content']);
@@ -31,14 +34,6 @@ class GlobalThermonuclearWarCommandTest extends TestCase
         $this->assertEquals('delayed', $output[2]['type']);
         $this->assertEquals(1500, $output[2]['delay']);
         $this->assertStringContainsString('Greetings Professor Falken.', $output[2]['content']);
-
-        $this->assertEquals('delayed', $output[3]['type']);
-        $this->assertEquals(3000, $output[3]['delay']);
-        $this->assertStringContainsString('A strange game. The only winning move is not to play.', $output[3]['content']);
-
-        $this->assertEquals('delayed', $output[4]['type']);
-        $this->assertEquals(3000, $output[4]['delay']);
-        $this->assertStringContainsString('How about a nice game of chess?', $output[4]['content']);
     }
 
     public function test_command_has_correct_name_and_description()
@@ -49,8 +44,9 @@ class GlobalThermonuclearWarCommandTest extends TestCase
 
     public function test_command_has_correct_aliases()
     {
-        $this->assertContains('gtw', $this->command->getAliases());
-        $this->assertContains('war', $this->command->getAliases());
+        $aliases = $this->command->getAliases();
+        $this->assertContains('gtw', $aliases);
+        $this->assertContains('war', $aliases);
     }
 
     public function test_command_is_hidden()

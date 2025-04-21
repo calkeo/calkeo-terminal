@@ -1,14 +1,23 @@
 <?php
 
 use App\Commands\SshCommand;
+use App\Livewire\Terminal;
 use Tests\TestCase;
 
 class SshCommandTest extends TestCase
 {
+    protected $terminal;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->terminal = new Terminal();
+    }
+
     public function test_ssh_command_displays_usage_when_no_host_provided()
     {
         $command = new SshCommand();
-        $output = $command->execute();
+        $output = $command->execute($this->terminal);
 
         // Check that the output contains usage information
         $this->assertCount(2, $output);
@@ -21,7 +30,7 @@ class SshCommandTest extends TestCase
     public function test_ssh_command_returns_delayed_output_when_host_provided()
     {
         $command = new SshCommand();
-        $output = $command->execute(['example.com']);
+        $output = $command->execute($this->terminal, ['example.com']);
 
         // Check that the output contains delayed output
         $this->assertGreaterThan(1, count($output));
@@ -47,7 +56,7 @@ class SshCommandTest extends TestCase
     public function test_ssh_command_contains_expected_connection_messages()
     {
         $command = new SshCommand();
-        $output = $command->execute(['example.com']);
+        $output = $command->execute($this->terminal, ['example.com']);
 
         // Check for expected messages in the output
         $expectedMessages = [

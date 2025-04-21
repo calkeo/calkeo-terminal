@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Commands\Traits\InteractiveCommandTrait;
+use App\Livewire\Terminal;
 
 class ContactCommand extends AbstractCommand
 {
@@ -25,7 +26,14 @@ class ContactCommand extends AbstractCommand
     protected const STEP_MESSAGE = 3;
     protected const STEP_MESSAGE_CONFIRM = 4;
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         // Get current step from session
         $step = $this->getCurrentStep();

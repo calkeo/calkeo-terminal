@@ -3,17 +3,20 @@
 namespace Tests\Unit\Commands;
 
 use App\Commands\WhoamiCommand;
+use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 class WhoamiCommandTest extends TestCase
 {
     protected $command;
+    protected $terminal;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->command = new WhoamiCommand();
+        $this->terminal = new Terminal();
     }
 
     public function test_whoami_command_returns_username_from_session()
@@ -24,7 +27,7 @@ class WhoamiCommandTest extends TestCase
             ->once()
             ->andReturn('testuser');
 
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
 
         // Check that we have all expected lines
         $this->assertCount(6, $output);
@@ -59,7 +62,7 @@ class WhoamiCommandTest extends TestCase
             ->once()
             ->andReturn('guest');
 
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
 
         // Check that we have all expected lines
         $this->assertCount(6, $output);

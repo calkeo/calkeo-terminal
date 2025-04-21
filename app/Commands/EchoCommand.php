@@ -2,12 +2,21 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 class EchoCommand extends AbstractCommand
 {
     protected $name = 'echo';
     protected $description = 'Display a line of text that is passed as an argument';
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         if (empty($args)) {
             return [

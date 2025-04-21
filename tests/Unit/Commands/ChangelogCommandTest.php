@@ -3,6 +3,7 @@
 namespace Tests\Unit\Commands;
 
 use App\Commands\ChangelogCommand;
+use App\Livewire\Terminal;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
@@ -11,12 +12,14 @@ class ChangelogCommandTest extends TestCase
     protected $command;
     protected $sampleChangelog;
     protected $changelogPath;
+    protected $terminal;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->command = new ChangelogCommand();
+        $this->terminal = new Terminal();
         $this->sampleChangelog = base_path('resources/files/SAMPLE_CHANGELOG.md');
         $this->changelogPath = base_path('resources/files/CHANGELOG.md');
 
@@ -57,7 +60,7 @@ class ChangelogCommandTest extends TestCase
      */
     public function test_command_returns_changelog_content()
     {
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
 
         // Check that the output is not empty
         $this->assertNotEmpty($output);
@@ -81,7 +84,7 @@ class ChangelogCommandTest extends TestCase
      */
     public function test_command_formats_version_headers()
     {
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
         $outputText = implode("\n", $output);
 
         // Check that version headers are formatted with the 'value' style
@@ -93,7 +96,7 @@ class ChangelogCommandTest extends TestCase
      */
     public function test_command_adds_spacing()
     {
-        $output = $this->command->execute();
+        $output = $this->command->execute($this->terminal);
 
         // Check that there are div elements with margin classes
         $hasMarginDivs = false;

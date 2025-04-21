@@ -1,6 +1,7 @@
 <?php
 
 use App\Commands\DateCommand;
+use App\Livewire\Terminal;
 use Tests\TestCase;
 
 class DateCommandTest extends TestCase
@@ -8,7 +9,8 @@ class DateCommandTest extends TestCase
     public function test_date_command_displays_current_date_and_time_in_various_formats()
     {
         $command = new DateCommand();
-        $output = $command->execute();
+        $terminal = new Terminal();
+        $output = $command->execute($terminal);
 
         // Check header
         $this->assertStringContainsString('Current Date and Time:', $output[0]);

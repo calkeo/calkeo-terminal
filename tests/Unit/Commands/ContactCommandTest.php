@@ -1,16 +1,20 @@
 <?php
 
 use App\Commands\ContactCommand;
+use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 class ContactCommandTest extends TestCase
 {
+    protected $terminal;
+
     protected function setUp(): void
     {
         parent::setUp();
         // Set up the session facade
         $this->app->instance('session', new \Illuminate\Session\SessionManager($this->app));
+        $this->terminal = new Terminal();
     }
 
     public function test_contact_command_shows_initial_form()
@@ -19,7 +23,7 @@ class ContactCommandTest extends TestCase
         Session::forget(['contact_subject', 'contact_message', 'contact_step']);
 
         $command = new ContactCommand();
-        $output = $command->execute();
+        $output = $command->execute($this->terminal);
 
         // Check that the output contains the initial form
         $this->assertCount(7, $output);
@@ -37,7 +41,7 @@ class ContactCommandTest extends TestCase
         Session::put('contact_step', 1);
 
         $command = new ContactCommand();
-        $output = $command->execute(['Hello', 'World']);
+        $output = $command->execute($this->terminal, ['Hello', 'World']);
 
         // Check that the output contains the subject confirmation
         $this->assertStringContainsString('Subject: Hello World', $output[0]);
@@ -55,7 +59,7 @@ class ContactCommandTest extends TestCase
         Session::put('contact_subject', 'Test Subject');
 
         $command = new ContactCommand();
-        $output = $command->execute(['yes']);
+        $output = $command->execute($this->terminal, ['yes']);
 
         // Check that the output contains the message input prompt
         $this->assertStringContainsString('Great! Now please enter your message:', $output[0]);
@@ -71,7 +75,7 @@ class ContactCommandTest extends TestCase
         Session::put('contact_subject', 'Test Subject');
 
         $command = new ContactCommand();
-        $output = $command->execute(['no']);
+        $output = $command->execute($this->terminal, ['no']);
 
         // Check that the output contains the subject input prompt again
         $this->assertStringContainsString("Let's try again. Please enter the subject:", $output[0]);
@@ -86,7 +90,7 @@ class ContactCommandTest extends TestCase
         Session::put('contact_step', 3);
 
         $command = new ContactCommand();
-        $output = $command->execute(['This', 'is', 'a', 'test', 'message']);
+        $output = $command->execute($this->terminal, ['This', 'is', 'a', 'test', 'message']);
 
         // Check that the output contains the message confirmation
         $this->assertStringContainsString('Message:', $output[0]);
@@ -106,7 +110,7 @@ class ContactCommandTest extends TestCase
         Session::put('contact_message', 'Test Message');
 
         $command = new ContactCommand();
-        $output = $command->execute(['yes']);
+        $output = $command->execute($this->terminal, ['yes']);
 
         // Check that the output contains the mailto link
         $this->assertStringContainsString('Perfect! Your message is ready to be sent.', $output[0]);
@@ -130,7 +134,7 @@ class ContactCommandTest extends TestCase
         Session::put('contact_message', 'Test Message');
 
         $command = new ContactCommand();
-        $output = $command->execute(['no']);
+        $output = $command->execute($this->terminal, ['no']);
 
         // Check that the output contains the message input prompt again
         $this->assertStringContainsString("Let's try again. Please enter your message:", $output[0]);
@@ -145,7 +149,7 @@ class ContactCommandTest extends TestCase
         Session::put('contact_step', 1);
 
         $command = new ContactCommand();
-        $output = $command->execute(['']);
+        $output = $command->execute($this->terminal, ['']);
 
         // Check that the output contains the error message
         $this->assertStringContainsString('Subject cannot be empty. Please try again:', $output[0]);
@@ -160,7 +164,7 @@ class ContactCommandTest extends TestCase
         Session::put('contact_step', 3);
 
         $command = new ContactCommand();
-        $output = $command->execute(['']);
+        $output = $command->execute($this->terminal, ['']);
 
         // Check that the output contains the error message
         $this->assertStringContainsString('Message cannot be empty. Please try again:', $output[0]);

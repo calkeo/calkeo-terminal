@@ -2,12 +2,21 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 class DateCommand extends AbstractCommand
 {
     protected $name = 'date';
     protected $description = 'Display the current date and time';
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         $output = [];
         $now = new \DateTime();

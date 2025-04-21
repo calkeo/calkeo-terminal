@@ -3,6 +3,7 @@
 use App\Commands\CommandInterface;
 use App\Commands\CommandRegistry;
 use App\Commands\HelpCommand;
+use App\Livewire\Terminal;
 
 test('help command returns formatted help information', function () {
     // Create a mock command
@@ -12,7 +13,7 @@ test('help command returns formatted help information', function () {
         {return 'test';}
         public function getDescription(): string
         {return 'Test command';}
-        public function execute(array $args = []): array
+        public function execute(Terminal $terminal, array $args = []): array
         {return ['Test executed'];}
         public function getUsage(): string
         {return 'test [options]';}
@@ -27,7 +28,8 @@ test('help command returns formatted help information', function () {
     $registry->register($mockCommand);
 
     $command = new HelpCommand($registry);
-    $result = $command->execute();
+    $terminal = new Terminal();
+    $result = $command->execute($terminal);
 
     // Check that the result contains the help information
     expect($result)->toHaveCount(6); // Header + table + empty line + help info
@@ -45,7 +47,7 @@ test('help command with specific command returns detailed help', function () {
         {return 'test';}
         public function getDescription(): string
         {return 'Test command';}
-        public function execute(array $args = []): array
+        public function execute(Terminal $terminal, array $args = []): array
         {return ['Test executed'];}
         public function getUsage(): string
         {return 'test [options]';}
@@ -60,7 +62,8 @@ test('help command with specific command returns detailed help', function () {
     $registry->register($mockCommand);
 
     $command = new HelpCommand($registry);
-    $result = $command->execute(['test']);
+    $terminal = new Terminal();
+    $result = $command->execute($terminal, ['test']);
 
     // Check that the result contains the detailed help information
     expect($result)->toHaveCount(2); // Header + box
@@ -74,7 +77,8 @@ test('help command with specific command returns detailed help', function () {
 test('help command with non-existent command returns error', function () {
     $registry = new CommandRegistry();
     $command = new HelpCommand($registry);
-    $result = $command->execute(['nonexistent']);
+    $terminal = new Terminal();
+    $result = $command->execute($terminal, ['nonexistent']);
 
     // Check that the result contains the error message
     expect($result)->toHaveCount(1);

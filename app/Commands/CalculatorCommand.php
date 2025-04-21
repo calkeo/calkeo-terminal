@@ -2,12 +2,21 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 class CalculatorCommand extends AbstractCommand
 {
     protected $name = 'calc';
     protected $description = 'Perform basic arithmetic calculations';
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         if (empty($args)) {
             return [

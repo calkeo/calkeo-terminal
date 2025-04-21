@@ -21,6 +21,7 @@ class Terminal extends Component
     public $currentCommandName = null;
     public $isProcessingDelayedOutput = false;
     public $hideInput = false;
+    public $fullScreenOutput = false;
 
     protected $commandRegistry;
     protected $commandParser;
@@ -51,6 +52,7 @@ class Terminal extends Component
         $this->currentCommandName = null;
         $this->isProcessingDelayedOutput = false;
         $this->hideInput = false;
+        $this->fullScreenOutput = false;
 
         // Add welcome message
         $welcomeMessage = new WelcomeMessage();
@@ -122,7 +124,7 @@ class Terminal extends Component
         $this->command = '';
 
         if ($command) {
-            $result = $command->execute($args);
+            $result = $command->execute($this, $args);
 
             // Handle special clear command
             if ($result === ['__CLEAR__']) {
@@ -152,24 +154,8 @@ class Terminal extends Component
                 return;
             }
 
-            // Handle commands that contain JS
-            $jsCommands = [];
-            if (in_array('__JS__', $result)) {
-                foreach ($result as $key => $line) {
-                    if (is_array($line) && isset($line['type']) && $line['type'] === 'js') {
-                        $jsCommands[] = $line['js'];
-                        unset($result[$key]);
-                    }
-                }
-                $result = array_diff($result, ['__JS__']);
-            }
-
             foreach ($result as $line) {
                 $this->output[] = $line;
-            }
-
-            foreach ($jsCommands as $jsCommand) {
-                $this->js($jsCommand);
             }
 
         } else {

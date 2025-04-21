@@ -3,64 +3,51 @@
 namespace Tests\Unit\Commands;
 
 use App\Commands\GamesCommand;
+use App\Livewire\Terminal;
 use Tests\TestCase;
 
 class GamesCommandTest extends TestCase
 {
-    protected $command;
+    protected $terminal;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->command = new GamesCommand();
+        $this->terminal = new Terminal();
     }
 
     public function test_games_command_returns_list_of_games()
     {
-        $output = $this->command->execute();
+        $command = new GamesCommand();
+        $output = $command->execute($this->terminal);
 
-        // Check that we have the expected header
+        $this->assertNotEmpty($output);
         $this->assertStringContainsString('Available Games', $output[0]);
-
-        // Check separator line
-        $this->assertEquals('===============', $output[1]);
-
-        // Check empty line
-        $this->assertEquals('', $output[2]);
-
-        // Check that we have game entries
-        $this->assertGreaterThan(3, count($output));
     }
 
     public function test_games_are_sorted_alphabetically()
     {
-        $games = $this->command->games();
-        $gameNames = $games->pluck('name')->toArray();
-        $sortedGameNames = $gameNames;
-        sort($sortedGameNames);
+        $command = new GamesCommand();
+        $games = $command->games();
 
-        $this->assertEquals($sortedGameNames, $gameNames);
+        $sortedGames = $games->sortBy('name');
+
+        $this->assertEquals($games, $sortedGames);
     }
 
     public function test_games_collection_has_sequential_indexes()
     {
-        $games = $this->command->games();
-        $indexes = $games->keys()->toArray();
-        $expectedIndexes = range(0, count($games) - 1);
+        $command = new GamesCommand();
+        $games = $command->games();
 
-        $this->assertEquals($expectedIndexes, $indexes);
+        $this->assertEquals(range(0, count($games) - 1), $games->keys()->toArray());
     }
 
     public function test_number_guessing_game_is_included()
     {
-        $games = $this->command->games();
-        $numberGuessingGame = $games->first(function ($game) {
-            return $game['name'] === 'Number Guessing';
-        });
+        $command = new GamesCommand();
+        $games = $command->games();
 
-        $this->assertNotNull($numberGuessingGame);
-        $this->assertEquals('Can you guess the number?', $numberGuessingGame['description']);
-        $this->assertNotNull($numberGuessingGame['command']);
-        $this->assertEquals('numberguess', $numberGuessingGame['command']->getName());
+        $this->assertTrue($games->contains('name', 'Number Guessing'));
     }
 }

@@ -16,7 +16,7 @@ class TestDelayedCommand extends AbstractCommand
     protected $name = 'test-delayed';
     protected $description = 'A test command with delayed output';
 
-    public function execute(array $args = []): array
+    public function execute(Terminal $terminal, array $args = []): array
     {
         return [
             ['text' => 'Immediate output', 'style' => 'text-green-500'],

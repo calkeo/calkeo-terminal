@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Commands\Traits\InteractiveCommandTrait;
+use App\Livewire\Terminal;
 
 class RockPaperScissorsCommand extends AbstractCommand
 {
@@ -23,7 +24,14 @@ class RockPaperScissorsCommand extends AbstractCommand
     protected const STEP_RESULT = 2;
     protected const STEP_PLAY_AGAIN = 3;
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         // Get current step from session
         $step = $this->getCurrentStep();

@@ -2,6 +2,8 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 class ChangelogCommand extends AbstractCommand
 {
     /**
@@ -16,10 +18,11 @@ class ChangelogCommand extends AbstractCommand
     /**
      * Execute the command
      *
-     * @param  array   $args
+     * @param  Terminal $terminal
+     * @param  array    $args
      * @return array
      */
-    public function execute(array $args = []): array
+    public function execute(Terminal $terminal, array $args = []): array
     {
         $output = [];
 

@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 
 class WhoamiCommand extends AbstractCommand
@@ -10,7 +11,14 @@ class WhoamiCommand extends AbstractCommand
     protected $description = 'Display the current username';
     protected $hidden = true;
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         $username = Session::get('terminal_username', 'guest');
         $hostname = 'calkeo.dev';

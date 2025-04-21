@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
 use Illuminate\Support\Collection;
 
 class GamesCommand extends AbstractCommand
@@ -61,10 +62,11 @@ class GamesCommand extends AbstractCommand
     /**
      * Execute the command
      *
-     * @param  array   $args
+     * @param  Terminal $terminal
+     * @param  array    $args
      * @return array
      */
-    public function execute(array $args = []): array
+    public function execute(Terminal $terminal, array $args = []): array
     {
         $output = [];
 

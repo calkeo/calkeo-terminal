@@ -2,6 +2,8 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 interface CommandInterface
 {
     /**
@@ -21,10 +23,11 @@ interface CommandInterface
     /**
      * Execute the command
      *
-     * @param  array $args  Command arguments
-     * @return array Output lines
+     * @param  Terminal $terminal Terminal instance
+     * @param  array    $args     Command arguments
+     * @return array    Output lines
      */
-    public function execute(array $args = []): array;
+    public function execute(Terminal $terminal, array $args = []): array;
 
     /**
      * Get command usage information

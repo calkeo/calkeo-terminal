@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
 use Illuminate\Support\Carbon;
 
 class AboutCommand extends AbstractCommand
@@ -18,10 +19,11 @@ class AboutCommand extends AbstractCommand
     /**
      * Execute the command
      *
-     * @param  array   $args
+     * @param  Terminal $terminal
+     * @param  array    $args
      * @return array
      */
-    public function execute(array $args = []): array
+    public function execute(Terminal $terminal, array $args = []): array
     {
         $output = [];
 

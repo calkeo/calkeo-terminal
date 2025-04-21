@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 
 class HistoryCommand extends AbstractCommand
@@ -9,7 +10,14 @@ class HistoryCommand extends AbstractCommand
     protected $name = 'history';
     protected $description = 'Display command history with timestamps';
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         $output = [];
         $history = Session::get('command_history', []);

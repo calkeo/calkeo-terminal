@@ -2,13 +2,22 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 class SshCommand extends AbstractCommand
 {
     protected $name = 'ssh';
     protected $description = 'Connect to a remote server via SSH';
     protected $aliases = ['ssh-connect'];
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         if (empty($args)) {
             return [

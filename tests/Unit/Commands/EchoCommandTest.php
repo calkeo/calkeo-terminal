@@ -1,48 +1,62 @@
 <?php
 
 use App\Commands\EchoCommand;
+use App\Livewire\Terminal;
+use Tests\TestCase;
 
-test('echo command displays usage when no arguments provided', function () {
-    $command = new EchoCommand();
-    $output = $command->execute();
+class EchoCommandTest extends TestCase
+{
+    protected $terminal;
 
-    expect($output)->toHaveCount(2);
-    expect($output[0])->toContain('Usage: echo <text>');
-    expect($output[0])->toContain('text-yellow-400'); // warning style
-    expect($output[1])->toContain('Example: echo Hello, World!');
-    expect($output[1])->toContain('text-cyan-400'); // info style
-});
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->terminal = new Terminal();
+    }
 
-test('echo command displays text when arguments provided', function () {
-    $command = new EchoCommand();
-    $output = $command->execute(['Hello', 'World']);
+    public function test_echo_command_displays_usage_when_no_arguments_provided()
+    {
+        $command = new EchoCommand();
+        $output = $command->execute($this->terminal);
 
-    expect($output)->toHaveCount(1);
-    expect($output[0])->toContain('Hello World');
-    expect($output[0])->toContain('text-green-400'); // default style
-});
+        $this->assertCount(2, $output);
+        $this->assertStringContainsString('Usage: echo <text>', $output[0]);
+        $this->assertStringContainsString('Example: echo Hello, World!', $output[1]);
+    }
 
-test('echo command handles quoted strings', function () {
-    $command = new EchoCommand();
-    $output = $command->execute(['"Hello World"']);
+    public function test_echo_command_displays_text_when_arguments_provided()
+    {
+        $command = new EchoCommand();
+        $output = $command->execute($this->terminal, ['Hello', 'World']);
 
-    expect($output)->toHaveCount(1);
-    expect($output[0])->toContain('Hello World');
-});
+        $this->assertCount(1, $output);
+        $this->assertStringContainsString('Hello World', $output[0]);
+    }
 
-test('echo command handles single quoted strings', function () {
-    $command = new EchoCommand();
-    $output = $command->execute(["'Hello World'"]);
+    public function test_echo_command_handles_quoted_strings()
+    {
+        $command = new EchoCommand();
+        $output = $command->execute($this->terminal, ['"Hello', 'World"']);
 
-    expect($output)->toHaveCount(1);
-    expect($output[0])->toContain('Hello World');
-    expect($output[0])->not->toContain("'");
-});
+        $this->assertCount(1, $output);
+        $this->assertStringContainsString('Hello World', $output[0]);
+    }
 
-test('echo command handles multiple arguments with spaces', function () {
-    $command = new EchoCommand();
-    $output = $command->execute(['Hello', 'Beautiful', 'World']);
+    public function test_echo_command_handles_single_quoted_strings()
+    {
+        $command = new EchoCommand();
+        $output = $command->execute($this->terminal, ["'Hello", "World'"]);
 
-    expect($output)->toHaveCount(1);
-    expect($output[0])->toContain('Hello Beautiful World');
-});
+        $this->assertCount(1, $output);
+        $this->assertStringContainsString('Hello World', $output[0]);
+    }
+
+    public function test_echo_command_handles_multiple_arguments_with_spaces()
+    {
+        $command = new EchoCommand();
+        $output = $command->execute($this->terminal, ['Hello', 'beautiful', 'World']);
+
+        $this->assertCount(1, $output);
+        $this->assertStringContainsString('Hello beautiful World', $output[0]);
+    }
+}

@@ -2,13 +2,22 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 class GithubCommand extends AbstractCommand
 {
     protected $name = 'git';
     protected $description = 'Displays git info';
     protected $aliases = ['github'];
 
-    public function execute(array $args = []): array
+    /**
+     * Execute the command
+     *
+     * @param  Terminal $terminal
+     * @param  array    $args
+     * @return array
+     */
+    public function execute(Terminal $terminal, array $args = []): array
     {
         $output = [];
 
