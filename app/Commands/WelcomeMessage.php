@@ -51,9 +51,9 @@ class WelcomeMessage
         <!-- Welcome message -->
         <div class="font-mono text-sm my-2">
             Welcome to <span class="text-cyan-400">{$this->getAppName()} {$this->getAppVersion()}</span> (GNU/Linux 6.9.420 x86_64)<br><br>
-            <span class="text-yellow-400">*</span> Documentation: <span class="text-blue-400">https://docs.calkeos.dev</span><br>
-            <span class="text-yellow-400">*</span> Management: <span class="text-blue-400">https://manage.calkeos.dev</span><br>
-            <span class="text-yellow-400">*</span> Support: <span class="text-blue-400">https://support.calkeos.dev</span> <span class="text-pink-400">(Premium support available!)</span>
+            <span class="text-yellow-400">*</span> Documentation: <a href="/docs" class="text-blue-400 hover:underline">https://calkeo.dev/docs</a><br>
+            <span class="text-yellow-400">*</span> Management: <a href="/manage" class="text-blue-400 hover:underline">https://calkeo.dev/manage</a><br>
+            <span class="text-yellow-400">*</span> Support: <a href="/support" class="text-blue-400 hover:underline">https://calkeo.dev/support</a> <span class="text-pink-400">(Premium support available!)</span>
         </div>
 HTML;
 
