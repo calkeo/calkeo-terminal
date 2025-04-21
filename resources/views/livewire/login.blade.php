@@ -3,12 +3,12 @@
         <div class="bg-gray-950 rounded-lg overflow-hidden shadow-2xl">
             <!-- Terminal Header -->
             <div class="flex items-center p-2 bg-gray-950 border-b border-gray-800">
-                <div class="text-sm text-green-400 font-['JetBrains_Mono']">login</div>
+                <div class="text-sm text-green-400">login</div>
             </div>
 
             <!-- Login Content -->
             <div class="p-6 bg-black">
-                <div class="space-y-4 font-['JetBrains_Mono'] text-green-400">
+                <div class="space-y-4 text-green-400">
                     <div class="text-cyan-400">Welcome to {{ config('app.name') }} {{ config('app.version') }}</div>
                     <div class="text-sm text-gray-200">{{ $tagline }}</div>
 

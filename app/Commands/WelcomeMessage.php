@@ -16,7 +16,7 @@ class WelcomeMessage
         $date = date('D M j H:i:s T Y');
 
         $html = <<<HTML
-        <div class="font-mono text-sm border border-gray-700 rounded-sm my-2">
+        <div class="border border-gray-700 rounded-sm my-2">
             <!-- Header -->
             <div class="bg-gray-800 px-2 py-1 border-b border-gray-700">
                 <span class="text-cyan-400 font-bold">{$this->getAppName()} Terminal {$this->getAppVersion()}</span>
@@ -35,10 +35,10 @@ class WelcomeMessage
                 <!-- System info -->
                 <div class="mb-2">
                     System information as of <span class="text-cyan-400">{$date}</span><br>
-                    Kernel: <span class="text-blue-400">6.9.420</span> (GNU/Linux x86_64)<br>
-                    CPU: <span class="text-blue-400">Intel(R) Caffeine(TM) i9 9999K @ 4.20GHz</span><br>
-                    Memory: <span class="text-blue-400">42GB of pure determination</span><br>
-                    Disk: <span class="text-blue-400">1TB of possibilities</span>
+                    Kernel: <span class="text-blue-400">3.14.159</span> (GNU/Linux x86_64)<br>
+                    CPU: <span class="text-blue-400">Intel(R) Celeron(TM) 300A @ 300MHz</span><br>
+                    Memory: <span class="text-blue-400">1TB Optane Memory</span><br>
+                    Disk: <span class="text-blue-400">64GB CompactFlash</span>
                 </div>
 
                 <!-- Help text -->
@@ -49,11 +49,11 @@ class WelcomeMessage
         </div>
 
         <!-- Welcome message -->
-        <div class="font-mono text-sm my-2">
-            Welcome to <span class="text-cyan-400">{$this->getAppName()} {$this->getAppVersion()}</span> (GNU/Linux 6.9.420 x86_64)<br><br>
+        <div class="my-2">
+            Welcome to <span class="text-cyan-400">{$this->getAppName()} {$this->getAppVersion()}</span> (GNU/Linux 3.14.159 x86_64)<br><br>
             <span class="text-yellow-400">*</span> Documentation: <a target="_blank" href="/docs" class="text-blue-400 hover:underline">https://calkeo.dev/docs</a><br>
             <span class="text-yellow-400">*</span> Management: <a target="_blank" href="/manage" class="text-blue-400 hover:underline">https://calkeo.dev/manage</a><br>
-            <span class="text-yellow-400">*</span> Support: <a target="_blank" href="/support" class="text-blue-400 hover:underline">https://calkeo.dev/support</a> <span class="text-pink-400">(Premium support available!)</span>
+            <span class="text-yellow-400">*</span> Support: <a target="_blank" href="/support" class="text-blue-400 hover:underline">https://calkeo.dev/support</a> <span class="text-pink-400">&nbsp;(Premium support available!)</span>
         </div>
 HTML;
 

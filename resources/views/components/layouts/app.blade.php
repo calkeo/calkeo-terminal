@@ -14,7 +14,7 @@
         @vite(['resources/css/terminal.css', 'resources/js/app.js'])
     </head>
 
-    <body class="antialiased bg-black h-full m-0 p-0 font-['JetBrains_Mono']">
+    <body class="antialiased bg-black h-full m-0 p-0 text-sm">
         {{ $slot }}
 
         @livewireScripts

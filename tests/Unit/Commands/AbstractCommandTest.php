@@ -82,7 +82,6 @@ test('createStyledBox creates properly formatted box', function () {
     $result = $method->invoke($command, $lines, $title);
 
     // Check for box container
-    expect($result)->toContain('font-[\'JetBrains_Mono\']');
     expect($result)->toContain('border border-gray-700');
 
     // Check for title
@@ -112,7 +111,6 @@ test('createStyledTable creates properly formatted table', function () {
     $result = $method->invoke($command, $headers, $rows);
 
     // Check for table container
-    expect($result)->toContain('font-[\'JetBrains_Mono\']');
     expect($result)->toContain('border border-gray-700');
 
     // Check for headers
