@@ -224,6 +224,10 @@ class Terminal extends Component
     {
         // Get all available commands
         $allCommands = $this->commandRegistry->all();
+        // Filter out hidden commands
+        $allCommands = $allCommands->filter(function ($command) {
+            return !$command->isHidden();
+        });
         $commandNames = $allCommands->keys()->toArray();
 
         // If command is empty, show all commands
