@@ -48,7 +48,7 @@ class WhoamiCommandTest extends TestCase
 
         // Check hostname
         $this->assertStringContainsString('host=', $output[5]);
-        $this->assertStringContainsString('calkeos', $output[5]);
+        $this->assertStringContainsString('calkeo.dev', $output[5]);
     }
 
     public function test_whoami_command_uses_guest_as_fallback()
@@ -83,6 +83,6 @@ class WhoamiCommandTest extends TestCase
 
         // Check hostname
         $this->assertStringContainsString('host=', $output[5]);
-        $this->assertStringContainsString('calkeos', $output[5]);
+        $this->assertStringContainsString('calkeo.dev', $output[5]);
     }
 }

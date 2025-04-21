@@ -12,7 +12,7 @@ class WhoamiCommand extends AbstractCommand
     public function execute(array $args = []): array
     {
         $username = Session::get('terminal_username', 'guest');
-        $hostname = 'calkeos';
+        $hostname = 'calkeo.dev';
         $uid = rand(1000, 9999);
         $gid = rand(100, 999);
         $groups = 'users,admin,docker';
