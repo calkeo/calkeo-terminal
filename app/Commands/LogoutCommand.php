@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Commands\CommandStates;
 use App\Livewire\Terminal;
 
 class LogoutCommand extends AbstractCommand
@@ -20,11 +21,11 @@ class LogoutCommand extends AbstractCommand
     public function execute(Terminal $terminal, array $args = []): array
     {
         session()->forget('terminal_logged_in');
+        $terminal->getCommandState()->set(CommandStates::LOGOUT, true);
         return [
             "Logging out...",
             "Thanks for using calkeOS Terminal!",
             "Redirecting to login...",
-            "__LOGOUT__", // Special marker for the frontend to handle redirect
         ];
     }
 }

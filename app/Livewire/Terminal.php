@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Commands\CommandParser;
 use App\Commands\CommandRegistry;
 use App\Commands\CommandState;
+use App\Commands\CommandStates;
 use App\Commands\WelcomeMessage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -128,7 +129,7 @@ class Terminal extends Component
             $result = $command->execute($this, $args);
 
             // Handle special clear command
-            if ($this->commandState->has('clear')) {
+            if ($this->commandState->has(CommandStates::CLEAR)) {
                 $this->output = [(new WelcomeMessage())->format()];
                 $this->currentCommandName = null;
                 $this->commandState->clear();
@@ -136,8 +137,8 @@ class Terminal extends Component
             }
 
             // Handle logout command
-            if (in_array('__LOGOUT__', $result)) {
-                $this->output = array_merge($this->output, array_diff($result, ['__LOGOUT__']));
+            if ($this->commandState->has(CommandStates::LOGOUT)) {
+                $this->output = $result;
                 $this->currentCommandName = null;
                 $this->commandState->clear();
                 return $this->redirect('/login');

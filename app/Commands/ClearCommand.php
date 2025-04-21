@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Commands\CommandStates;
 use App\Livewire\Terminal;
 
 class ClearCommand extends AbstractCommand
@@ -25,7 +26,7 @@ class ClearCommand extends AbstractCommand
     public function execute(Terminal $terminal, array $args = []): array
     {
         // Set the clear state in the terminal's command state
-        $terminal->getCommandState()->set('clear', true);
+        $terminal->getCommandState()->set(CommandStates::CLEAR, true);
         return [];
     }
 }

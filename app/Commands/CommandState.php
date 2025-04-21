@@ -17,47 +17,47 @@ class CommandState
     /**
      * Set a state variable
      *
-     * @param  string $key
-     * @param  mixed  $value
+     * @param  CommandStates $key
+     * @param  mixed         $value
      * @return void
      */
-    public function set(string $key, $value): void
+    public function set(CommandStates $key, $value): void
     {
-        $this->state[$key] = $value;
+        $this->state[$key->value] = $value;
     }
 
     /**
      * Get a state variable
      *
-     * @param  string  $key
-     * @param  mixed   $default
+     * @param  CommandStates $key
+     * @param  mixed         $default
      * @return mixed
      */
-    public function get(string $key, $default = null)
+    public function get(CommandStates $key, $default = null)
     {
-        return $this->state[$key] ?? $default;
+        return $this->state[$key->value] ?? $default;
     }
 
     /**
      * Check if a state variable exists
      *
-     * @param  string $key
+     * @param  CommandStates $key
      * @return bool
      */
-    public function has(string $key): bool
+    public function has(CommandStates $key): bool
     {
-        return isset($this->state[$key]);
+        return isset($this->state[$key->value]);
     }
 
     /**
      * Remove a state variable
      *
-     * @param  string $key
+     * @param  CommandStates $key
      * @return void
      */
-    public function remove(string $key): void
+    public function remove(CommandStates $key): void
     {
-        unset($this->state[$key]);
+        unset($this->state[$key->value]);
     }
 
     /**
