@@ -5,7 +5,7 @@
 @section('content')
 <div class="bg-white shadow rounded-lg overflow-hidden">
     <div class="px-4 py-5 sm:px-6">
-        <h1 class="text-2xl font-bold text-gray-900">Calkeo Terminal Documentation</h1>
+        <h1 class="text-2xl font-bold text-gray-900">calkeOS Documentation</h1>
         <p class="mt-1 text-sm text-gray-500">Everything you need to know about our revolutionary terminal interface</p>
     </div>
 
