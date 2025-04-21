@@ -6,9 +6,12 @@ use App\Commands\NumberGuessingCommand;
 use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
+use Tests\Traits\TerminalTestTrait;
 
 class NumberGuessingCommandTest extends TestCase
 {
+    use TerminalTestTrait;
+
     protected $command;
     protected $terminal;
 
@@ -16,7 +19,7 @@ class NumberGuessingCommandTest extends TestCase
     {
         parent::setUp();
         $this->command = new NumberGuessingCommand();
-        $this->terminal = new Terminal();
+        $this->terminal = $this->initializeTerminal();
         Session::forget([
             'numberguess_step',
             'numberguess_target_number',

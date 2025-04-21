@@ -31,6 +31,8 @@ class NumberGuessingCommand extends AbstractCommand
     protected const DIFFICULTY_MEDIUM = 'medium';
     protected const DIFFICULTY_HARD = 'hard';
 
+    protected $terminal;
+
     /**
      * Execute the command
      *
@@ -40,6 +42,8 @@ class NumberGuessingCommand extends AbstractCommand
      */
     public function execute(Terminal $terminal, array $args = []): array
     {
+        $this->terminal = $terminal;
+
         // Get current step from session
         $step = $this->getCurrentStep();
 
@@ -50,6 +54,11 @@ class NumberGuessingCommand extends AbstractCommand
 
         // Start the interactive process
         return $this->startInteractiveProcess();
+    }
+
+    protected function getTerminal(): Terminal
+    {
+        return $this->terminal;
     }
 
     protected function getSessionKeys(): array

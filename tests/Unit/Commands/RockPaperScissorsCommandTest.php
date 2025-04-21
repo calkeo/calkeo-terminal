@@ -2,15 +2,19 @@
 
 namespace Tests\Unit\Commands;
 
+use App\Commands\CommandStates;
 use App\Commands\RockPaperScissorsCommand;
 use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 use Nette\Utils\ReflectionMethod;
 use ReflectionClass;
 use Tests\TestCase;
+use Tests\Traits\TerminalTestTrait;
 
 class RockPaperScissorsCommandTest extends TestCase
 {
+    use TerminalTestTrait;
+
     protected $command;
     protected $terminal;
 
@@ -18,7 +22,7 @@ class RockPaperScissorsCommandTest extends TestCase
     {
         parent::setUp();
         $this->command = new RockPaperScissorsCommand();
-        $this->terminal = new Terminal();
+        $this->terminal = $this->initializeTerminal();
     }
 
     public function test_command_starts_interactive_process()
@@ -40,7 +44,7 @@ class RockPaperScissorsCommandTest extends TestCase
         $this->assertStringContainsString('Enter your choice (1-3):', $output[8]);
 
         // Check that the command is interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertTrue($this->terminal->getCommandState()->has(CommandStates::INTERACTIVE));
     }
 
     public function test_command_handles_invalid_choice()
@@ -54,7 +58,7 @@ class RockPaperScissorsCommandTest extends TestCase
         $this->assertStringContainsString('Invalid choice! Please enter 1, 2, or 3:', $output[0]);
 
         // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertTrue($this->terminal->getCommandState()->has(CommandStates::INTERACTIVE));
     }
 
     public function test_command_handles_valid_choice()
@@ -72,7 +76,7 @@ class RockPaperScissorsCommandTest extends TestCase
         $this->assertStringContainsString('Want to play again? (yes/no):', $output[5]);
 
         // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertTrue($this->terminal->getCommandState()->has(CommandStates::INTERACTIVE));
     }
 
     public function test_command_handles_play_again_yes()
@@ -95,7 +99,7 @@ class RockPaperScissorsCommandTest extends TestCase
         $this->assertStringContainsString('Enter your choice (1-3):', $output[7]);
 
         // Check that the command is still interactive
-        $this->assertContains('__INTERACTIVE__', $output);
+        $this->assertTrue($this->terminal->getCommandState()->has(CommandStates::INTERACTIVE));
     }
 
     public function test_command_handles_play_again_no()
@@ -110,7 +114,7 @@ class RockPaperScissorsCommandTest extends TestCase
         $this->assertStringContainsString("Run 'rps' to play again.", $output[1]);
 
         // Check that the command is no longer interactive
-        $this->assertNotContains('__INTERACTIVE__', $output);
+        $this->assertFalse($this->terminal->getCommandState()->has(CommandStates::INTERACTIVE));
     }
 
     public function test_command_determines_winner_correctly()

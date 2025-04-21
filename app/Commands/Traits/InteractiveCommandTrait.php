@@ -2,10 +2,19 @@
 
 namespace App\Commands\Traits;
 
+use App\Commands\CommandStates;
+use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 
 trait InteractiveCommandTrait
 {
+    /**
+     * Get the name of the required terminal variable
+     *
+     * @return Terminal
+     */
+    abstract protected function getTerminal(): Terminal;
+
     /**
      * Get the current step from session
      *
@@ -116,7 +125,8 @@ trait InteractiveCommandTrait
      */
     protected function interactiveOutput(array $output): array
     {
-        return array_merge($output, ['__INTERACTIVE__']);
+        $this->getTerminal()->getCommandState()->set(CommandStates::INTERACTIVE, true);
+        return $output;
     }
 
     public function reset()

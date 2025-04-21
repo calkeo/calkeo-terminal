@@ -145,7 +145,7 @@ class Terminal extends Component
             }
 
             // Check if the command is complete (no more steps)
-            if (!in_array('__INTERACTIVE__', $result)) {
+            if (!$this->commandState->has(CommandStates::INTERACTIVE)) {
                 $this->currentCommandName = null;
             } else {
                 $result = array_diff($result, ['__INTERACTIVE__']);
@@ -161,6 +161,8 @@ class Terminal extends Component
             foreach ($result as $line) {
                 $this->output[] = $line;
             }
+
+            $this->commandState->clear();
 
         } else {
             $this->output[] = "<span class=\"text-red-400\">Command not found: {$commandName}</span>";

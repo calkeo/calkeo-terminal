@@ -24,6 +24,8 @@ class RockPaperScissorsCommand extends AbstractCommand
     protected const STEP_RESULT = 2;
     protected const STEP_PLAY_AGAIN = 3;
 
+    protected $terminal;
+
     /**
      * Execute the command
      *
@@ -33,6 +35,8 @@ class RockPaperScissorsCommand extends AbstractCommand
      */
     public function execute(Terminal $terminal, array $args = []): array
     {
+        $this->terminal = $terminal;
+
         // Get current step from session
         $step = $this->getCurrentStep();
 
@@ -43,6 +47,11 @@ class RockPaperScissorsCommand extends AbstractCommand
 
         // Start the interactive process
         return $this->startInteractiveProcess();
+    }
+
+    protected function getTerminal(): Terminal
+    {
+        return $this->terminal;
     }
 
     protected function getSessionKeys(): array

@@ -4,9 +4,12 @@ use App\Commands\ContactCommand;
 use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
+use Tests\Traits\TerminalTestTrait;
 
 class ContactCommandTest extends TestCase
 {
+    use TerminalTestTrait;
+
     protected $terminal;
 
     protected function setUp(): void
@@ -14,7 +17,7 @@ class ContactCommandTest extends TestCase
         parent::setUp();
         // Set up the session facade
         $this->app->instance('session', new \Illuminate\Session\SessionManager($this->app));
-        $this->terminal = new Terminal();
+        $this->terminal = $this->initializeTerminal();
     }
 
     public function test_contact_command_shows_initial_form()
@@ -26,7 +29,7 @@ class ContactCommandTest extends TestCase
         $output = $command->execute($this->terminal);
 
         // Check that the output contains the initial form
-        $this->assertCount(7, $output);
+        $this->assertCount(6, $output);
         $this->assertStringContainsString('Contact Form', $output[0]);
         $this->assertStringContainsString('You are about to send a message to', $output[3]);
         $this->assertStringContainsString('Please enter the subject of your message:', $output[5]);

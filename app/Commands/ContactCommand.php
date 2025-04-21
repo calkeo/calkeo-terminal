@@ -26,6 +26,8 @@ class ContactCommand extends AbstractCommand
     protected const STEP_MESSAGE = 3;
     protected const STEP_MESSAGE_CONFIRM = 4;
 
+    protected $terminal;
+
     /**
      * Execute the command
      *
@@ -35,6 +37,8 @@ class ContactCommand extends AbstractCommand
      */
     public function execute(Terminal $terminal, array $args = []): array
     {
+        $this->terminal = $terminal;
+
         // Get current step from session
         $step = $this->getCurrentStep();
 
@@ -45,6 +49,11 @@ class ContactCommand extends AbstractCommand
 
         // Start the interactive process
         return $this->startInteractiveProcess();
+    }
+
+    protected function getTerminal(): Terminal
+    {
+        return $this->terminal;
     }
 
     protected function getSessionKeys(): array
