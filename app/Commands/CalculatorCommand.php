@@ -84,29 +84,161 @@ class CalculatorCommand extends AbstractCommand
      */
     protected function evaluateExpression(string $expression)
     {
-        try {
-            $result = @eval("return $expression;");
+        // Split the expression into tokens
+        $tokens = $this->tokenize($expression);
 
-            if ($result === false && error_get_last()) {
-                throw new \Exception("Invalid expression");
+        // Convert infix notation to postfix (Reverse Polish Notation)
+        $postfix = $this->infixToPostfix($tokens);
+
+        // Evaluate the postfix expression
+        return $this->evaluatePostfix($postfix);
+    }
+
+    /**
+     * Tokenize the expression into numbers and operators
+     *
+     * @param  string  $expression
+     * @return array
+     */
+    private function tokenize(string $expression): array
+    {
+        $tokens = [];
+        $number = '';
+
+        for ($i = 0; $i < strlen($expression); $i++) {
+            $char = $expression[$i];
+
+            if (is_numeric($char) || $char === '.') {
+                $number .= $char;
+            } else {
+                if ($number !== '') {
+                    $tokens[] = $number;
+                    $number = '';
+                }
+                $tokens[] = $char;
             }
+        }
 
-            // Check for division by zero
-            if (is_infinite($result) || is_nan($result)) {
-                throw new \Exception("Division by zero or invalid operation");
+        if ($number !== '') {
+            $tokens[] = $number;
+        }
+
+        return $tokens;
+    }
+
+    /**
+     * Convert infix notation to postfix (Reverse Polish Notation)
+     *
+     * @param  array   $tokens
+     * @return array
+     */
+    private function infixToPostfix(array $tokens): array
+    {
+        $output = [];
+        $operators = [];
+
+        $precedence = [
+            '+' => 1,
+            '-' => 1,
+            '*' => 2,
+            '/' => 2,
+            '%' => 2,
+        ];
+
+        foreach ($tokens as $token) {
+            if (is_numeric($token) || $token === '.') {
+                $output[] = $token;
+            } elseif ($token === '(') {
+                $operators[] = $token;
+            } elseif ($token === ')') {
+                while (!empty($operators) && end($operators) !== '(') {
+                    $output[] = array_pop($operators);
+                }
+
+                if (!empty($operators) && end($operators) === '(') {
+                    array_pop($operators); // Remove the '('
+                }
+            } else {
+                while (!empty($operators) &&
+                    end($operators) !== '(' &&
+                    $precedence[end($operators)] >= $precedence[$token]) {
+                    $output[] = array_pop($operators);
+                }
+                $operators[] = $token;
             }
+        }
 
-            // Format the result
-            if (is_float($result)) {
-                // Round to 6 decimal places
-                $result = round($result, 6);
-                // Remove trailing zeros
-                $result = rtrim(rtrim($result, '0'), '.');
+        while (!empty($operators)) {
+            $output[] = array_pop($operators);
+        }
+
+        return $output;
+    }
+
+    /**
+     * Evaluate a postfix expression
+     *
+     * @param  array        $postfix
+     * @throws \Exception
+     * @return float|int
+     */
+    private function evaluatePostfix(array $postfix)
+    {
+        $stack = [];
+
+        foreach ($postfix as $token) {
+            if (is_numeric($token) || $token === '.') {
+                $stack[] = $token;
+            } else {
+                if (count($stack) < 2) {
+                    throw new \Exception("Invalid expression");
+                }
+
+                $b = array_pop($stack);
+                $a = array_pop($stack);
+
+                switch ($token) {
+                    case '+':
+                        $stack[] = $a + $b;
+                        break;
+                    case '-':
+                        $stack[] = $a - $b;
+                        break;
+                    case '*':
+                        $stack[] = $a * $b;
+                        break;
+                    case '/':
+                        if ($b == 0) {
+                            throw new \Exception("Division by zero");
+                        }
+                        $stack[] = $a / $b;
+                        break;
+                    case '%':
+                        if ($b == 0) {
+                            throw new \Exception("Modulo by zero");
+                        }
+                        $stack[] = $a % $b;
+                        break;
+                    default:
+                        throw new \Exception("Unknown operator: $token");
+                }
             }
+        }
 
-            return $result;
-        } catch (\ParseError $e) {
+        if (count($stack) !== 1) {
             throw new \Exception("Invalid expression");
         }
+
+        $result = $stack[0];
+
+        // Format the result
+        if (is_float($result)) {
+            // Round to 6 decimal places
+            $result = round($result, 6);
+            // Remove trailing zeros
+            $result = rtrim(rtrim($result, '0'), '.');
+        }
+
+        return $result;
     }
 }
