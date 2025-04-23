@@ -89,7 +89,7 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="metric-label">Bug Count</dt>
-                            <dd class="metric-value text-red-600">42,069</dd>
+                            <dd class="metric-value text-red-600">24,847</dd>
                         </dl>
                     </div>
                 </div>
@@ -333,7 +333,7 @@ Dashboard last updated: Just now (or sometime in the last hour)
                 randomMetric.textContent = 'OVER 9001!';
             } else if (randomMetric.textContent.includes('CRITICAL')) {
                 randomMetric.textContent = 'EMPTY';
-            } else if (randomMetric.textContent.includes('42,069')) {
+            } else if (randomMetric.textContent.includes('24,847')) {
                 randomMetric.textContent = '42,070';
             } else if (randomMetric.textContent.includes('HIGH')) {
                 randomMetric.textContent = 'VERY HIGH';
