@@ -23,6 +23,8 @@ class Terminal extends Component
     public $currentCommandName = null;
     public $isProcessingDelayedOutput = false;
     public $hideInput = false;
+    public $replaceLastOutput = false;
+    public $lastOutput = [];
 
     protected $commandRegistry;
     protected $commandParser;
@@ -60,7 +62,8 @@ class Terminal extends Component
         $this->isProcessingDelayedOutput = false;
         $this->hideInput = false;
         $this->commandState->clear();
-
+        $this->replaceLastOutput = false;
+        $this->lastOutput = [];
         // Add welcome message
         $welcomeMessage = new WelcomeMessage();
         $this->output[] = $welcomeMessage->format();
@@ -158,14 +161,33 @@ class Terminal extends Component
                 return;
             }
 
+            if ($this->replaceLastOutput) {
+                // Find where the last output starts, including the command prompt line
+                $lastOutputStart = count($this->output) - count($this->lastOutput) - 1;
+                if ($lastOutputStart < 0) {
+                    $lastOutputStart = 0;
+                }
+
+                // Keep everything before the last output
+                $this->output = array_slice($this->output, 0, $lastOutputStart);
+                $this->replaceLastOutput = false;
+            }
+
+            // Add the new output
             foreach ($result as $line) {
                 $this->output[] = $line;
             }
 
+            $this->lastOutput = $result;
         } else {
             $this->output[] = "<span class=\"text-red-400\">Command not found: {$commandName}</span>";
             $this->output[] = "<span class=\"text-yellow-400\">Type 'help' to see available commands.</span>";
         }
+    }
+
+    public function replaceLastOutput()
+    {
+        $this->replaceLastOutput = true;
     }
 
     public function isDelayedResponse(array $result): bool
@@ -181,6 +203,18 @@ class Terminal extends Component
     public function delayedOutput(array $result)
     {
         $this->isProcessingDelayedOutput = true;
+
+        if ($this->replaceLastOutput) {
+            // Find where the last output starts
+            $lastOutputStart = count($this->output) - count($this->lastOutput);
+            if ($lastOutputStart < 0) {
+                $lastOutputStart = 0;
+            }
+
+            // Keep everything before the last output
+            $this->output = array_slice($this->output, 0, $lastOutputStart);
+            $this->replaceLastOutput = false;
+        }
 
         foreach ($result as $line) {
             if (is_array($line) && isset($line['type']) && $line['type'] === 'delayed') {
@@ -199,6 +233,7 @@ class Terminal extends Component
             }
         }
 
+        $this->lastOutput = $result;
         $this->isProcessingDelayedOutput = false;
         $this->hideInput = false;
         $this->dispatch('focusInput');

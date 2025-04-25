@@ -105,6 +105,7 @@ class TicTacToeCommand extends AbstractCommand
             case self::STEP_DIFFICULTY:
                 return $this->handleDifficultyStep($input);
             case self::STEP_PLAY:
+                $this->terminal->replaceLastOutput();
                 return $this->handlePlayStep($input);
             case self::STEP_PLAY_AGAIN:
                 return $this->handlePlayAgainStep($input);
@@ -143,12 +144,12 @@ class TicTacToeCommand extends AbstractCommand
         return $this->interactiveOutput([
             $this->formatOutput("Difficulty: " . ucfirst($difficulty), 'info'),
             "",
-            $this->formatOutput("Board positions are numbered 1-9:", 'info'),
-            $this->formatOutput("    1 | 2 | 3", 'normal'),
+            $this->formatOutput("Board positions match numpad layout:", 'info'),
+            $this->formatOutput("    7 | 8 | 9", 'normal'),
             $this->formatOutput("   -----------", 'normal'),
             $this->formatOutput("    4 | 5 | 6", 'normal'),
             $this->formatOutput("   -----------", 'normal'),
-            $this->formatOutput("    7 | 8 | 9", 'normal'),
+            $this->formatOutput("    1 | 2 | 3", 'normal'),
             "",
             $this->formatOutput("Current board:", 'info'),
             $this->formatBoard($board),
@@ -173,7 +174,6 @@ class TicTacToeCommand extends AbstractCommand
             if (!is_numeric($input) || $input < 1 || $input > 9) {
                 return $this->interactiveOutput([
                     $this->formatOutput("Invalid input! Please enter a number between 1 and 9:", 'error'),
-                    $this->formatOutput("Current board:", 'info'),
                     $this->formatBoard($board),
                     "",
                     $this->formatOutput("Your turn (X)! Enter position (1-9):", 'warning'),
@@ -186,7 +186,6 @@ class TicTacToeCommand extends AbstractCommand
             if ($board[$position] !== self::EMPTY_CELL) {
                 return $this->interactiveOutput([
                     $this->formatOutput("That position is already taken! Try another position:", 'error'),
-                    $this->formatOutput("Current board:", 'info'),
                     $this->formatBoard($board),
                     "",
                     $this->formatOutput("Your turn (X)! Enter position (1-9):", 'warning'),
@@ -203,7 +202,6 @@ class TicTacToeCommand extends AbstractCommand
                 $this->setSessionValue(self::WINNER_KEY, self::PLAYER_HUMAN);
 
                 return $this->interactiveOutput([
-                    $this->formatOutput("Current board:", 'info'),
                     $this->formatBoard($board),
                     "",
                     $this->formatOutput("Congratulations! You win!", 'success'),
@@ -217,7 +215,6 @@ class TicTacToeCommand extends AbstractCommand
                 $this->setSessionValue(self::GAME_OVER_KEY, true);
 
                 return $this->interactiveOutput([
-                    $this->formatOutput("Current board:", 'info'),
                     $this->formatBoard($board),
                     "",
                     $this->formatOutput("It's a draw!", 'info'),
@@ -240,7 +237,6 @@ class TicTacToeCommand extends AbstractCommand
                 $this->setSessionValue(self::WINNER_KEY, self::PLAYER_COMPUTER);
 
                 return $this->interactiveOutput([
-                    $this->formatOutput("Current board:", 'info'),
                     $this->formatBoard($board),
                     "",
                     $this->formatOutput("Computer wins!", 'error'),
@@ -254,7 +250,6 @@ class TicTacToeCommand extends AbstractCommand
                 $this->setSessionValue(self::GAME_OVER_KEY, true);
 
                 return $this->interactiveOutput([
-                    $this->formatOutput("Current board:", 'info'),
                     $this->formatBoard($board),
                     "",
                     $this->formatOutput("It's a draw!", 'info'),
@@ -267,7 +262,6 @@ class TicTacToeCommand extends AbstractCommand
             $this->setSessionValue(self::CURRENT_PLAYER_KEY, self::PLAYER_HUMAN);
 
             return $this->interactiveOutput([
-                $this->formatOutput("Current board:", 'info'),
                 $this->formatBoard($board),
                 "",
                 $this->formatOutput("Your turn (X)! Enter position (1-9):", 'warning'),
@@ -310,15 +304,49 @@ class TicTacToeCommand extends AbstractCommand
 
     protected function formatBoard(array $board): string
     {
-        return implode("\n", [
-            $this->formatOutput("    ╔═══╦═══╦═══╗", 'normal'),
-            $this->formatOutput("    ║ {$board[0]} ║ {$board[1]} ║ {$board[2]} ║", 'normal'),
-            $this->formatOutput("    ╠═══╬═══╬═══╣", 'normal'),
-            $this->formatOutput("    ║ {$board[3]} ║ {$board[4]} ║ {$board[5]} ║", 'normal'),
-            $this->formatOutput("    ╠═══╬═══╬═══╣", 'normal'),
-            $this->formatOutput("    ║ {$board[6]} ║ {$board[7]} ║ {$board[8]} ║", 'normal'),
-            $this->formatOutput("    ╚═══╩═══╩═══╝", 'normal'),
-        ]);
+        $gameBoard = [
+            $this->formatOutput("    ╔═══╦═══╦═══╗", 'warning'),
+            $this->formatOutput("    ║", 'warning') . " " . $this->formatCell($board[6]) . " " . $this->formatOutput("║", 'warning') . " " . $this->formatCell($board[7]) . " " . $this->formatOutput("║", 'warning') . " " . $this->formatCell($board[8]) . " " . $this->formatOutput("║", 'warning'),
+            $this->formatOutput("    ╠═══╬═══╬═══╣", 'warning'),
+            $this->formatOutput("    ║", 'warning') . " " . $this->formatCell($board[3]) . " " . $this->formatOutput("║", 'warning') . " " . $this->formatCell($board[4]) . " " . $this->formatOutput("║", 'warning') . " " . $this->formatCell($board[5]) . " " . $this->formatOutput("║", 'warning'),
+            $this->formatOutput("    ╠═══╬═══╬═══╣", 'warning'),
+            $this->formatOutput("    ║", 'warning') . " " . $this->formatCell($board[0]) . " " . $this->formatOutput("║", 'warning') . " " . $this->formatCell($board[1]) . " " . $this->formatOutput("║", 'warning') . " " . $this->formatCell($board[2]) . " " . $this->formatOutput("║", 'warning'),
+            $this->formatOutput("    ╚═══╩═══╩═══╝", 'warning'),
+        ];
+
+        $numberBoard = [
+            "    ╔═══╦═══╦═══╗",
+            "    ║ 7 ║ 8 ║ 9 ║",
+            "    ╠═══╬═══╬═══╣",
+            "    ║ 4 ║ 5 ║ 6 ║",
+            "    ╠═══╬═══╬═══╣",
+            "    ║ 1 ║ 2 ║ 3 ║",
+            "    ╚═══╩═══╩═══╝",
+        ];
+
+        $output = [];
+        $output[] = $this->formatOutput("Current Game State", 'header');
+        for ($i = 0; $i < count($gameBoard); $i++) {
+            if (is_string($gameBoard[$i])) {
+                $output[] = $this->formatOutput($gameBoard[$i] . "    " . $numberBoard[$i], 'normal');
+            } else {
+                $output[] = $gameBoard[$i] . "    " . $this->formatOutput($numberBoard[$i], 'normal');
+            }
+        }
+        $output[] = "";
+        $output[] = $this->formatOutput("Your turn! Use the numpad layout on the right to make your move.", 'info');
+
+        return implode("\n", $output);
+    }
+
+    protected function formatCell(string $cell): string
+    {
+        if ($cell === self::PLAYER_HUMAN) {
+            return $this->formatOutput($cell, 'error'); // Changed to error (red) for X
+        } elseif ($cell === self::PLAYER_COMPUTER) {
+            return $this->formatOutput($cell, 'success'); // Changed to success (green) for O
+        }
+        return $cell;
     }
 
     protected function checkWin(array $board, string $player): bool
@@ -386,12 +414,12 @@ class TicTacToeCommand extends AbstractCommand
             return $blockingMove;
         }
 
-        // Try to take center
+        // Try to take center (position 5 in numpad)
         if ($board[4] === self::EMPTY_CELL) {
             return 4;
         }
 
-        // Try to take corners
+        // Try to take corners (positions 1,3,7,9 in numpad)
         $corners = [0, 2, 6, 8];
         $emptyCorners = array_filter($corners, fn($pos) => $board[$pos] === self::EMPTY_CELL);
         if (!empty($emptyCorners)) {
