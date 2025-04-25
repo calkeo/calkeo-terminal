@@ -25,6 +25,7 @@ class Terminal extends Component
     public $hideInput = false;
     public $replaceLastOutput = false;
     public $lastOutput = [];
+    public $formattedCommand = '';
 
     protected $commandRegistry;
     protected $commandParser;
@@ -35,6 +36,7 @@ class Terminal extends Component
         $this->commandRegistry = $registry;
         $this->commandParser = $parser;
         $this->commandState = new CommandState();
+        $this->formattedCommand = '';
     }
 
     public function mount()
@@ -93,7 +95,14 @@ class Terminal extends Component
         $this->showSuggestions = false;
 
         // Add command to output
-        $this->output[] = "<span class='text-cyan-400'>$</span> <span class='text-green-400'>" . htmlspecialchars($this->command) . "</span>";
+        $this->formattedCommand = "<span class='text-cyan-400'>$</span> <span class='text-green-400'>" . htmlspecialchars($this->command) . "</span>";
+
+        $this->stream(
+            to: 'output',
+            content: $this->formattedCommand,
+        );
+
+        $this->output[] = $this->formattedCommand;
 
         // Add command to history with timestamp
         $history = Session::get('command_history', []);

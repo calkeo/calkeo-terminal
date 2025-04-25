@@ -5,6 +5,7 @@ namespace App\Commands;
 use App\Commands\PrivacyCommand;
 use App\Commands\TicTacToeCommand;
 use App\Commands\VersionCommand;
+use App\Commands\WhoisCommand;
 use Illuminate\Support\Collection;
 
 class CommandRegistry
@@ -50,6 +51,7 @@ class CommandRegistry
         $this->register(new TicTacToeCommand());
         $this->register(new VersionCommand());
         $this->register(new PrivacyCommand());
+        $this->register(new WhoisCommand());
     }
 
     /**

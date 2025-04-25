@@ -2,6 +2,8 @@
 
 namespace App\Commands;
 
+use App\Livewire\Terminal;
+
 abstract class AbstractCommand implements CommandInterface
 {
     /**
@@ -170,5 +172,17 @@ abstract class AbstractCommand implements CommandInterface
         $html .= '</div>';
 
         return $html;
+    }
+
+    public function streamOutput(Terminal $terminal, string $output): string
+    {
+        $wrappedOutput = "<div class='whitespace-pre-wrap leading-relaxed'>" . $output . "</div>";
+
+        $terminal->stream(
+            to: 'output',
+            content: $wrappedOutput,
+        );
+
+        return $output;
     }
 }

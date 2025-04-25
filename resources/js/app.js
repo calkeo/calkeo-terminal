@@ -15,12 +15,19 @@ document.addEventListener('livewire:initialized', () => {
 function scrollToBottom() {
     const terminalContainer = document.getElementById('terminal-container');
     if (terminalContainer) {
-        terminalContainer.scrollTop = terminalContainer.scrollHeight;
+        // Use requestAnimationFrame to ensure DOM is fully updated
+        requestAnimationFrame(() => {
+            // Force a reflow to ensure scrollHeight is accurate
+            terminalContainer.scrollTop = 0;
+            terminalContainer.scrollTop = terminalContainer.scrollHeight;
+        });
     }
 }
 
 // Scroll to bottom when the component updates
-document.addEventListener('livewire:update', scrollToBottom);
+document.addEventListener('livewire:update', () => {
+    setTimeout(scrollToBottom, 0);
+});
 
 // Also scroll after any DOM changes
 document.addEventListener('DOMContentLoaded', function() {
@@ -30,15 +37,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up a MutationObserver to watch for changes in the terminal output
     const terminalContent = document.getElementById('terminal-output');
     if (terminalContent) {
-        const observer = new MutationObserver(scrollToBottom);
+        const observer = new MutationObserver(() => {
+            setTimeout(scrollToBottom, 0);
+        });
         observer.observe(terminalContent, { childList: true, subtree: true });
     }
 
     // Also scroll after a short delay to ensure content is rendered
-    setTimeout(scrollToBottom, 100);
+    setTimeout(scrollToBottom, 500);
 });
 
 // Scroll after any Livewire event
-document.addEventListener('livewire:load', scrollToBottom);
-document.addEventListener('livewire:navigated', scrollToBottom);
-document.addEventListener('livewire:initialized', scrollToBottom);
+document.addEventListener('livewire:load', () => setTimeout(scrollToBottom, 0));
+document.addEventListener('livewire:navigated', () => setTimeout(scrollToBottom, 0));
+document.addEventListener('livewire:initialized', () => setTimeout(scrollToBottom, 0));
