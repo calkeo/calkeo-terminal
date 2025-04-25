@@ -331,6 +331,12 @@ class Terminal extends Component
         return $this->commandState;
     }
 
+    public function viewPlainText()
+    {
+        Session::put('view_plain_text', true);
+        return redirect()->to('/');
+    }
+
     public function render()
     {
         if (request()->attributes->get('is_bot', false)) {

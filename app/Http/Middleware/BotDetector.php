@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,7 +19,7 @@ class BotDetector
      */
     public function handle(Request $request, Closure $next)
     {
-        if (config('app.test_bot_views')) {
+        if (config('app.test_bot_views') || Session::get('view_plain_text')) {
             $request->attributes->add(['is_bot' => true]);
             return $next($request);
         }

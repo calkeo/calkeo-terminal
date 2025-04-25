@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 
 class Login extends Component
@@ -42,6 +43,12 @@ class Login extends Component
     public function focusPassword()
     {
         $this->dispatch('focus-password');
+    }
+
+    public function viewPlainText()
+    {
+        Session::put('view_plain_text', true);
+        return redirect()->to('/');
     }
 
     public function render()
