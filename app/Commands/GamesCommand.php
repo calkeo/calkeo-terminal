@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Commands\TicTacToeCommand;
 use App\Livewire\Terminal;
 use Illuminate\Support\Collection;
 
@@ -22,6 +23,7 @@ class GamesCommand extends AbstractCommand
             [
                 'name' => 'Tic-Tac-Toe',
                 'description' => 'Simple but challenging',
+                'command' => new TicTacToeCommand(),
             ],
             [
                 'name' => 'Hangman',
