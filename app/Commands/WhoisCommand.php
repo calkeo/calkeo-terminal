@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use App\Livewire\Terminal;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 use Iodev\Whois\Exceptions\ConnectionException;
 use Iodev\Whois\Exceptions\ServerMismatchException;
 use Iodev\Whois\Exceptions\WhoisException;
@@ -24,7 +25,12 @@ class WhoisCommand extends AbstractCommand
             return $output;
         }
 
-        if (!filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+        // Use Laravel's validator to validate the domain
+        $validator = Validator::make(['domain' => $domain], [
+            'domain' => ['required', 'regex:/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i'],
+        ]);
+
+        if ($validator->fails()) {
             $output[] = $this->formatOutput('Invalid domain name format', 'error');
             return $output;
         }
