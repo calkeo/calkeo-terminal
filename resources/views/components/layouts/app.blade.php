@@ -14,6 +14,12 @@
         @vite(['resources/css/terminal.css', 'resources/js/app.js'])
     </head>
 
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
     <body class="antialiased bg-black h-full m-0 p-0 text-sm">
         {{ $slot }}
 

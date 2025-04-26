@@ -128,7 +128,7 @@ abstract class AbstractCommand implements CommandInterface
     protected function createStyledBox(array $lines, ?string $title = null): string
     {
         $boxContainer = $this->formatOutput(
-            '<div class="border border-gray-700 overflow-hidden">' .
+            '<div class="border border-gray-700 overflow-hidden my-2">' .
             ($title ? '<div class="bg-gray-800 p-2 border-b border-gray-700"><span class="text-gray-400">$</span> ' . $title . '</div>' : '') .
             '<div class="p-4 space-y-1">' . implode('<br>', $lines) . '</div>' .
             '</div>',

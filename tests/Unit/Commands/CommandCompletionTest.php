@@ -6,6 +6,8 @@ use App\Commands\CommandParser;
 use App\Commands\CommandRegistry;
 use App\Livewire\Terminal;
 use Illuminate\Support\Facades\Session;
+use Livewire\Component;
+use Mockery;
 use Tests\TestCase;
 
 class CommandCompletionTest extends TestCase
@@ -24,8 +26,15 @@ class CommandCompletionTest extends TestCase
         // Create a command parser
         $this->commandParser = $this->app->make(CommandParser::class);
 
-        // Create the terminal component
-        $this->terminal = new Terminal();
+        // Create the terminal component with a mock stream method
+        $this->terminal = new class extends Terminal
+        {
+            public function stream($to, $content, $replace = false)
+            {
+                // Do nothing in tests
+                return null;
+            }
+        };
 
         // Manually set the dependencies
         $this->terminal->boot($this->commandRegistry, $this->commandParser);
