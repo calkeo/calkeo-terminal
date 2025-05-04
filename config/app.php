@@ -153,7 +153,7 @@ return [
     |
      */
 
-    'version' => 'v0.1.0',
+    'version' => 'v0.3.0',
 
     'test_bot_views' => env('TEST_BOT_VIEWS', false),
 ];

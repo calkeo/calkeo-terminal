@@ -14,3 +14,69 @@ html {
     font-family: 'JetBrains Mono', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+.chess-board {
+    display: inline-block;
+}
+
+.chess-row {
+    display: flex;
+}
+
+.chess-cell {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.chess-cell.white {
+    background-color: #767676;
+}
+
+.chess-cell.black {
+    background-color: #3d3d3d;
+}
+
+.chess-cell.valid-move {
+    background-color: rgba(0, 255, 0, 0.2);
+}
+
+.chess-piece {
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: bold;
+}
+
+.chess-piece.white {
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.chess-piece.black {
+    color: #000;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.468);
+}
+
+.chess-labels {
+    display: flex;
+    justify-content: space-between;
+}
+
+.chess-label {
+    width: 3rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+}
+
+.valid-move-dot {
+    color: #4CAF50;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
