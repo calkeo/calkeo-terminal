@@ -293,6 +293,7 @@ class ChessCommand extends AbstractCommand
 
         // Make the move
         $piece = $board[$selectedPiece['y']][$selectedPiece['x']];
+        $capturedPiece = $board[$destY][$destX];
         $board[$destY][$destX] = $piece;
         $board[$selectedPiece['y']][$selectedPiece['x']] = null;
 
@@ -311,7 +312,9 @@ class ChessCommand extends AbstractCommand
             return $this->interactiveOutput([
                 $this->formatBoard($board),
                 "",
-                $this->formatOutput("Checkmate! You win!", 'success'),
+                $this->formatOutput("You win!", 'success'),
+                "",
+                $this->explainCheckmate($board, self::PLAYER_COMPUTER),
                 "",
                 $this->formatOutput("Want to play again? (yes/no):", 'warning'),
             ]);
@@ -356,7 +359,9 @@ class ChessCommand extends AbstractCommand
             return $this->interactiveOutput([
                 $this->formatBoard($board),
                 "",
-                $this->formatOutput("Checkmate! Computer wins!", 'error'),
+                $this->formatOutput("Computer wins!", 'error'),
+                "",
+                $this->explainCheckmate($board, self::PLAYER_HUMAN),
                 "",
                 $this->formatOutput("Want to play again? (yes/no):", 'warning'),
             ]);
@@ -785,26 +790,52 @@ class ChessCommand extends AbstractCommand
 
     protected function makeHardMove(array $board): ?array
     {
-        // First, try to find a checkmate move
-        $checkmateMove = $this->findCheckmateMove($board);
-        if ($checkmateMove !== null) {
-            return $checkmateMove;
+        $bestScore = -INF;
+        $bestMove = null;
+
+        // Get all computer pieces
+        $pieces = [];
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null && $piece['color'] === self::PLAYER_COMPUTER) {
+                    $pieces[] = ['x' => $x, 'y' => $y];
+                }
+            }
         }
 
-        // Then, try to capture a piece
-        $captureMove = $this->findCaptureMove($board);
-        if ($captureMove !== null) {
-            return $captureMove;
+        // Evaluate each possible move
+        foreach ($pieces as $piece) {
+            $moves = $this->getValidMoves($board, $piece['x'], $piece['y']);
+            foreach ($moves as $move) {
+                $newBoard = $board;
+                $newBoard[$move['y']][$move['x']] = $board[$piece['y']][$piece['x']];
+                $newBoard[$piece['y']][$piece['x']] = null;
+
+                // Calculate score for this move
+                $score = $this->evaluateMove($newBoard, $piece, $move);
+
+                // If this move leads to checkmate, take it immediately
+                if ($this->isCheckmate($newBoard, self::PLAYER_HUMAN)) {
+                    return [
+                        'board' => $newBoard,
+                        'from' => $piece,
+                        'to' => $move,
+                    ];
+                }
+
+                if ($score > $bestScore) {
+                    $bestScore = $score;
+                    $bestMove = [
+                        'board' => $newBoard,
+                        'from' => $piece,
+                        'to' => $move,
+                    ];
+                }
+            }
         }
 
-        // Then, try to move a piece to a better position
-        $positionMove = $this->findPositionMove($board);
-        if ($positionMove !== null) {
-            return $positionMove;
-        }
-
-        // If no good moves found, make a random move
-        return $this->makeEasyMove($board);
+        return $bestMove;
     }
 
     protected function findCaptureMove(array $board): ?array
@@ -884,39 +915,504 @@ class ChessCommand extends AbstractCommand
         return null;
     }
 
-    protected function findCheckmateMove(array $board): ?array
+    protected function evaluateMove(array $board, array $piece, array $move): float
     {
-        $pieces = [];
+        $score = 0.0;
+
+        // 1. Material value
+        $score += $this->evaluateMaterial($board);
+
+        // 2. Position value
+        $score += $this->evaluatePosition($board);
+
+        // 3. Development value
+        $score += $this->evaluateDevelopment($board);
+
+        // 4. King safety
+        $score += $this->evaluateKingSafety($board);
+
+        // 5. Pawn structure
+        $score += $this->evaluatePawnStructure($board);
+
+        // 6. Center control
+        $score += $this->evaluateCenterControl($board);
+
+        // 7. Piece mobility
+        $score += $this->evaluateMobility($board);
+
+        // 8. Threat detection
+        $score += $this->evaluateThreats($board);
+
+        return $score;
+    }
+
+    protected function evaluateMaterial(array $board): float
+    {
+        $score = 0.0;
+        $pieceValues = [
+            'pawn' => 1.0,
+            'knight' => 3.0,
+            'bishop' => 3.25,
+            'rook' => 5.0,
+            'queen' => 9.0,
+            'king' => 100.0,
+        ];
+
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null) {
+                    $value = $pieceValues[$piece['type']];
+                    $score += $piece['color'] === self::PLAYER_COMPUTER ? $value : -$value;
+                }
+            }
+        }
+
+        return $score;
+    }
+
+    protected function evaluatePosition(array $board): float
+    {
+        $score = 0.0;
+        $positionValues = [
+            'pawn' => [
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+                [0.1, 0.1, 0.2, 0.3, 0.3, 0.2, 0.1, 0.1],
+                [0.05, 0.05, 0.1, 0.25, 0.25, 0.1, 0.05, 0.05],
+                [0.0, 0.0, 0.0, 0.2, 0.2, 0.0, 0.0, 0.0],
+                [0.05, -0.05, -0.1, 0.0, 0.0, -0.1, -0.05, 0.05],
+                [0.05, 0.1, 0.1, -0.2, -0.2, 0.1, 0.1, 0.05],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            ],
+            'knight' => [
+                [-0.5, -0.4, -0.3, -0.3, -0.3, -0.3, -0.4, -0.5],
+                [-0.4, -0.2, 0.0, 0.0, 0.0, 0.0, -0.2, -0.4],
+                [-0.3, 0.0, 0.1, 0.15, 0.15, 0.1, 0.0, -0.3],
+                [-0.3, 0.05, 0.15, 0.2, 0.2, 0.15, 0.05, -0.3],
+                [-0.3, 0.0, 0.15, 0.2, 0.2, 0.15, 0.0, -0.3],
+                [-0.3, 0.05, 0.1, 0.15, 0.15, 0.1, 0.05, -0.3],
+                [-0.4, -0.2, 0.0, 0.05, 0.05, 0.0, -0.2, -0.4],
+                [-0.5, -0.4, -0.3, -0.3, -0.3, -0.3, -0.4, -0.5],
+            ],
+            'bishop' => [
+                [-0.2, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.2],
+                [-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.1],
+                [-0.1, 0.0, 0.05, 0.1, 0.1, 0.05, 0.0, -0.1],
+                [-0.1, 0.05, 0.05, 0.1, 0.1, 0.05, 0.05, -0.1],
+                [-0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.0, -0.1],
+                [-0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, -0.1],
+                [-0.1, 0.05, 0.0, 0.0, 0.0, 0.0, 0.05, -0.1],
+                [-0.2, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.2],
+            ],
+            'rook' => [
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.05],
+                [-0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.05],
+                [-0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.05],
+                [-0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.05],
+                [-0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.05],
+                [-0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.05],
+                [0.0, 0.0, 0.0, 0.05, 0.05, 0.0, 0.0, 0.0],
+            ],
+            'queen' => [
+                [-0.2, -0.1, -0.1, -0.05, -0.05, -0.1, -0.1, -0.2],
+                [-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.1],
+                [-0.1, 0.0, 0.05, 0.05, 0.05, 0.05, 0.0, -0.1],
+                [-0.05, 0.0, 0.05, 0.05, 0.05, 0.05, 0.0, -0.05],
+                [0.0, 0.0, 0.05, 0.05, 0.05, 0.05, 0.0, -0.05],
+                [-0.1, 0.05, 0.05, 0.05, 0.05, 0.05, 0.0, -0.1],
+                [-0.1, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, -0.1],
+                [-0.2, -0.1, -0.1, -0.05, -0.05, -0.1, -0.1, -0.2],
+            ],
+            'king' => [
+                [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+                [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+                [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+                [-0.3, -0.4, -0.4, -0.5, -0.5, -0.4, -0.4, -0.3],
+                [-0.2, -0.3, -0.3, -0.4, -0.4, -0.3, -0.3, -0.2],
+                [-0.1, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.1],
+                [0.2, 0.2, 0.0, 0.0, 0.0, 0.0, 0.2, 0.2],
+                [0.2, 0.3, 0.1, 0.0, 0.0, 0.1, 0.3, 0.2],
+            ],
+        ];
+
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null) {
+                    $value = $positionValues[$piece['type']][$y][$x];
+                    $score += $piece['color'] === self::PLAYER_COMPUTER ? $value : -$value;
+                }
+            }
+        }
+
+        return $score;
+    }
+
+    protected function evaluateDevelopment(array $board): float
+    {
+        $score = 0.0;
+        $developedPieces = 0;
+        $totalPieces = 0;
+
+        // Count developed pieces (not on starting rank)
         for ($y = 0; $y < 8; $y++) {
             for ($x = 0; $x < 8; $x++) {
                 $piece = $board[$y][$x];
                 if ($piece !== null && $piece['color'] === self::PLAYER_COMPUTER) {
-                    $pieces[] = ['x' => $x, 'y' => $y];
+                    $totalPieces++;
+                    if ($y !== 0 && $y !== 1) {
+                        // Not on starting ranks
+                        $developedPieces++;
+                    }
                 }
             }
         }
 
-        foreach ($pieces as $piece) {
-            $moves = $this->getValidMoves($board, $piece['x'], $piece['y']);
-            foreach ($moves as $move) {
-                $newBoard = $board;
-                $newBoard[$move['y']][$move['x']] = $board[$piece['y']][$piece['x']];
-                $newBoard[$piece['y']][$piece['x']] = null;
-                if ($this->isCheckmate($newBoard, self::PLAYER_HUMAN)) {
-                    return [
-                        'board' => $newBoard,
-                        'from' => $piece,
-                        'to' => $move,
-                    ];
+        if ($totalPieces > 0) {
+            $score = ($developedPieces / $totalPieces) * 2.0;
+        }
+
+        return $score;
+    }
+
+    protected function evaluateKingSafety(array $board): float
+    {
+        $score = 0.0;
+        $kingX = null;
+        $kingY = null;
+
+        // Find computer's king
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null && $piece['type'] === 'king' && $piece['color'] === self::PLAYER_COMPUTER) {
+                    $kingX = $x;
+                    $kingY = $y;
+                    break 2;
                 }
             }
         }
 
-        return null;
+        if ($kingX !== null && $kingY !== null) {
+            // Check if king is castled
+            if ($kingX === 6 && $kingY === 0) {
+                // Kingside castling
+                $score += 0.5;
+            } elseif ($kingX === 2 && $kingY === 0) {
+                // Queenside castling
+                $score += 0.5;
+            }
+
+            // Check pawn shield
+            $pawnShield = 0;
+            for ($x = max(0, $kingX - 1); $x <= min(7, $kingX + 1); $x++) {
+                $piece = $board[$kingY + 1][$x] ?? null;
+                if ($piece !== null && $piece['type'] === 'pawn' && $piece['color'] === self::PLAYER_COMPUTER) {
+                    $pawnShield++;
+                }
+            }
+            $score += $pawnShield * 0.2;
+        }
+
+        return $score;
+    }
+
+    protected function evaluatePawnStructure(array $board): float
+    {
+        $score = 0.0;
+        $doubledPawns = 0;
+        $isolatedPawns = 0;
+        $passedPawns = 0;
+
+        // Check for doubled and isolated pawns
+        for ($x = 0; $x < 8; $x++) {
+            $pawnCount = 0;
+            $hasNeighbor = false;
+            for ($y = 0; $y < 8; $y++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null && $piece['type'] === 'pawn' && $piece['color'] === self::PLAYER_COMPUTER) {
+                    $pawnCount++;
+                    // Check for neighboring pawns
+                    if ($x > 0) {
+                        for ($ny = 0; $ny < 8; $ny++) {
+                            $neighbor = $board[$ny][$x - 1];
+                            if ($neighbor !== null && $neighbor['type'] === 'pawn' && $neighbor['color'] === self::PLAYER_COMPUTER) {
+                                $hasNeighbor = true;
+                                break;
+                            }
+                        }
+                    }
+                    if ($x < 7) {
+                        for ($ny = 0; $ny < 8; $ny++) {
+                            $neighbor = $board[$ny][$x + 1];
+                            if ($neighbor !== null && $neighbor['type'] === 'pawn' && $neighbor['color'] === self::PLAYER_COMPUTER) {
+                                $hasNeighbor = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if ($pawnCount > 1) {
+                $doubledPawns += $pawnCount - 1;
+            }
+            if ($pawnCount > 0 && !$hasNeighbor) {
+                $isolatedPawns++;
+            }
+        }
+
+        // Check for passed pawns
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null && $piece['type'] === 'pawn' && $piece['color'] === self::PLAYER_COMPUTER) {
+                    $isPassed = true;
+                    for ($ny = $y + 1; $ny < 8; $ny++) {
+                        for ($nx = max(0, $x - 1); $nx <= min(7, $x + 1); $nx++) {
+                            $opponent = $board[$ny][$nx];
+                            if ($opponent !== null && $opponent['type'] === 'pawn' && $opponent['color'] === self::PLAYER_HUMAN) {
+                                $isPassed = false;
+                                break 2;
+                            }
+                        }
+                    }
+                    if ($isPassed) {
+                        $passedPawns++;
+                    }
+                }
+            }
+        }
+
+        $score -= $doubledPawns * 0.5;
+        $score -= $isolatedPawns * 0.5;
+        $score += $passedPawns * 0.5;
+
+        return $score;
+    }
+
+    protected function evaluateCenterControl(array $board): float
+    {
+        $score = 0.0;
+        $centerSquares = [[3, 3], [3, 4], [4, 3], [4, 4]];
+
+        foreach ($centerSquares as $square) {
+            $x = $square[0];
+            $y = $square[1];
+            $piece = $board[$y][$x];
+            if ($piece !== null) {
+                $score += $piece['color'] === self::PLAYER_COMPUTER ? 0.5 : -0.5;
+            }
+        }
+
+        return $score;
+    }
+
+    protected function evaluateMobility(array $board): float
+    {
+        $score = 0.0;
+        $computerMoves = 0;
+        $humanMoves = 0;
+
+        // Count valid moves for each piece
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null) {
+                    $moves = $this->getValidMoves($board, $x, $y);
+                    if ($piece['color'] === self::PLAYER_COMPUTER) {
+                        $computerMoves += count($moves);
+                    } else {
+                        $humanMoves += count($moves);
+                    }
+                }
+            }
+        }
+
+        $score = ($computerMoves - $humanMoves) * 0.1;
+        return $score;
+    }
+
+    protected function evaluateThreats(array $board): float
+    {
+        $score = 0.0;
+
+        // Check for pieces under attack
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null) {
+                    $isUnderAttack = false;
+                    for ($ny = 0; $ny < 8; $ny++) {
+                        for ($nx = 0; $nx < 8; $nx++) {
+                            $attacker = $board[$ny][$nx];
+                            if ($attacker !== null && $attacker['color'] !== $piece['color']) {
+                                $moves = $this->getValidMoves($board, $nx, $ny);
+                                foreach ($moves as $move) {
+                                    if ($move['x'] === $x && $move['y'] === $y) {
+                                        $isUnderAttack = true;
+                                        break 2;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if ($isUnderAttack) {
+                        $score += $piece['color'] === self::PLAYER_COMPUTER ? -0.5 : 0.5;
+                    }
+                }
+            }
+        }
+
+        return $score;
     }
 
     protected function formatSquare(array $square): string
     {
         return chr($square['x'] + ord('a')) . (8 - $square['y']);
+    }
+
+    protected function explainCheckmate(array $board, string $color): string
+    {
+        $explanation = [];
+        $kingX = null;
+        $kingY = null;
+        $opponentColor = $color === 'white' ? 'black' : 'white';
+
+        // Find the king
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null && $piece['type'] === 'king' && $piece['color'] === $color) {
+                    $kingX = $x;
+                    $kingY = $y;
+                    break 2;
+                }
+            }
+        }
+
+        if ($kingX === null || $kingY === null) {
+            return "King not found!";
+        }
+
+        // Check each opponent piece that can attack the king
+        $attackingPieces = [];
+        for ($y = 0; $y < 8; $y++) {
+            for ($x = 0; $x < 8; $x++) {
+                $piece = $board[$y][$x];
+                if ($piece !== null && $piece['color'] === $opponentColor) {
+                    $moves = $this->getValidMoves($board, $x, $y);
+                    foreach ($moves as $move) {
+                        if ($move['x'] === $kingX && $move['y'] === $kingY) {
+                            $attackingPieces[] = [
+                                'piece' => $piece,
+                                'from' => ['x' => $x, 'y' => $y],
+                            ];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check if king can move to safety
+        $kingMoves = $this->getValidMoves($board, $kingX, $kingY);
+        $canEscape = !empty($kingMoves);
+
+        // Check if any piece can block or capture the attacking pieces
+        $canBlock = false;
+        foreach ($attackingPieces as $attacker) {
+            // Check if any piece can capture the attacker
+            for ($y = 0; $y < 8; $y++) {
+                for ($x = 0; $x < 8; $x++) {
+                    $piece = $board[$y][$x];
+                    if ($piece !== null && $piece['color'] === $color) {
+                        $moves = $this->getValidMoves($board, $x, $y);
+                        foreach ($moves as $move) {
+                            if ($move['x'] === $attacker['from']['x'] && $move['y'] === $attacker['from']['y']) {
+                                $canBlock = true;
+                                break 3;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Check if any piece can block the attack
+            if (count($attackingPieces) === 1) {
+                $attackerPiece = $attacker['piece'];
+                $attackerX = $attacker['from']['x'];
+                $attackerY = $attacker['from']['y'];
+
+                // Get squares between attacker and king
+                $squaresBetween = $this->getSquaresBetween($attackerX, $attackerY, $kingX, $kingY);
+                foreach ($squaresBetween as $square) {
+                    for ($y = 0; $y < 8; $y++) {
+                        for ($x = 0; $x < 8; $x++) {
+                            $piece = $board[$y][$x];
+                            if ($piece !== null && $piece['color'] === $color) {
+                                $moves = $this->getValidMoves($board, $x, $y);
+                                foreach ($moves as $move) {
+                                    if ($move['x'] === $square['x'] && $move['y'] === $square['y']) {
+                                        $canBlock = true;
+                                        break 4;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Build explanation
+        $explanation[] = "Checkmate! The " . ucfirst($color) . " king is trapped.";
+        $explanation[] = "";
+
+        if (!empty($attackingPieces)) {
+            $explanation[] = "The king is under attack by:";
+            foreach ($attackingPieces as $attacker) {
+                $piece = $attacker['piece'];
+                $from = $this->formatSquare($attacker['from']);
+                $explanation[] = "- " . ucfirst($piece['type']) . " at " . $from;
+            }
+            $explanation[] = "";
+        }
+
+        if (!$canEscape) {
+            $explanation[] = "The king cannot move to any safe square.";
+        }
+
+        if (!$canBlock) {
+            if (count($attackingPieces) === 1) {
+                $explanation[] = "No piece can block or capture the attacking piece.";
+            } else {
+                $explanation[] = "No piece can capture all attacking pieces.";
+            }
+        }
+
+        return implode("\n", $explanation);
+    }
+
+    protected function getSquaresBetween(int $x1, int $y1, int $x2, int $y2): array
+    {
+        $squares = [];
+        $dx = $x2 - $x1;
+        $dy = $y2 - $y1;
+        $steps = max(abs($dx), abs($dy));
+
+        if ($steps > 1) {
+            $dx = $dx / $steps;
+            $dy = $dy / $steps;
+            for ($i = 1; $i < $steps; $i++) {
+                $squares[] = [
+                    'x' => (int) ($x1 + $i * $dx),
+                    'y' => (int) ($y1 + $i * $dy),
+                ];
+            }
+        }
+
+        return $squares;
     }
 }
