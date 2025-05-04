@@ -17,11 +17,11 @@
         "league/commonmark": "^2.6",
         "livewire/livewire": "^3.6",
         "sentry/sentry-laravel": "^4.13",
-        "symfony/string": "^7.2"
+        "symfony/string": "^7.2",
+        "fakerphp/faker": "^1.23"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",
-        "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.41",
