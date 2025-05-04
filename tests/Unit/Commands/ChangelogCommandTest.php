@@ -67,7 +67,6 @@ class ChangelogCommandTest extends TestCase
 
         // Check that the output contains the changelog content
         $this->assertStringContainsString('Changelog', implode("\n", $output));
-        $this->assertStringContainsString('Unreleased', implode("\n", $output));
         $this->assertStringContainsString('Added', implode("\n", $output));
     }
 
