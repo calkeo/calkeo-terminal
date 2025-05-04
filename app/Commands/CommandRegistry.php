@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Commands\ChessCommand;
+use App\Commands\HangmanCommand;
 use App\Commands\PrivacyCommand;
 use App\Commands\TicTacToeCommand;
 use App\Commands\VersionCommand;
@@ -54,6 +55,7 @@ class CommandRegistry
         $this->register(new PrivacyCommand());
         $this->register(new WhoisCommand());
         $this->register(new ChessCommand());
+        $this->register(new HangmanCommand());
     }
 
     /**

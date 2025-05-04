@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added chess game with three difficulty levels
 - **Whois Command**
   - Added whois command for domain information
+- **Hangman Game**
+  - Added hangman game with three difficulty levels
 
 ## [0.2.1] - 2025-04-26
 

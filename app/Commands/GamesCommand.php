@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Commands\ChessCommand;
+use App\Commands\HangmanCommand;
 use App\Commands\TicTacToeCommand;
 use App\Livewire\Terminal;
 use Illuminate\Support\Collection;
@@ -30,6 +31,7 @@ class GamesCommand extends AbstractCommand
             [
                 'name' => 'Hangman',
                 'description' => 'Test your vocabulary',
+                'command' => new HangmanCommand(),
             ],
             [
                 'name' => 'Number Guessing',
