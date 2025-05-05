@@ -4,7 +4,7 @@ namespace App\Commands;
 
 use App\Commands\Traits\InteractiveCommandTrait;
 use App\Livewire\Terminal;
-use Faker\Factory;
+use Illuminate\Support\Facades\Cache;
 
 class HangmanCommand extends AbstractCommand
 {
@@ -22,17 +22,33 @@ class HangmanCommand extends AbstractCommand
     protected const GAME_OVER_KEY = 'game_over';
     protected const WINNER_KEY = 'winner';
     protected const DIFFICULTY_KEY = 'difficulty';
+    protected const DICTIONARY_KEY = 'dictionary';
 
     // Step definitions
     protected const STEP_START = 1;
-    protected const STEP_DIFFICULTY = 2;
-    protected const STEP_GUESS = 3;
-    protected const STEP_PLAY_AGAIN = 4;
+    protected const STEP_DICTIONARY = 2;
+    protected const STEP_DIFFICULTY = 3;
+    protected const STEP_GUESS = 4;
+    protected const STEP_PLAY_AGAIN = 5;
 
     // Difficulty levels
     protected const DIFFICULTY_EASY = 'easy';
     protected const DIFFICULTY_MEDIUM = 'medium';
     protected const DIFFICULTY_HARD = 'hard';
+
+    // Dictionary settings
+    protected const MIN_WORD_LENGTH = 3;
+    protected const MAX_WORD_LENGTH_EASY = 7;
+    protected const MAX_WORD_LENGTH_MEDIUM = 10;
+    protected const MAX_WORD_LENGTH_HARD = 20;
+    protected const CACHE_KEY = 'hangman_dictionary_v02';
+    protected const CACHE_TTL = 60 * 60 * 24 * 30; // 30 days
+    protected const DICTIONARIES = [
+        'GB' => 'en_GB-ise.dic',
+        'US' => 'en_US.dic',
+        'CA' => 'en_CA.dic',
+        'AU' => 'en_AU.dic',
+    ];
 
     // Hangman visual states
     protected const HANGMAN_STATES = [
@@ -95,7 +111,7 @@ class HangmanCommand extends AbstractCommand
     ];
 
     protected $terminal;
-    protected $faker;
+    protected $dictionary = [];
 
     /**
      * Execute the command
@@ -108,7 +124,7 @@ class HangmanCommand extends AbstractCommand
     {
         $this->terminal = $terminal;
 
-        $this->faker = Factory::create();
+        $this->loadDictionary();
 
         // Get current step from session
         $step = $this->getCurrentStep();
@@ -120,6 +136,51 @@ class HangmanCommand extends AbstractCommand
 
         // Start the interactive process
         return $this->startInteractiveProcess();
+    }
+
+    protected function loadDictionary(): void
+    {
+        // Try to get dictionary from cache
+        $cacheKey = self::CACHE_KEY . '_' . $this->getSessionValue(self::DICTIONARY_KEY, 'GB');
+        $this->dictionary = Cache::get($cacheKey);
+
+        if ($this->dictionary === null) {
+            // Get selected dictionary
+            $dictionaryKey = $this->getSessionValue(self::DICTIONARY_KEY, 'GB');
+            $dictionaryFile = self::DICTIONARIES[$dictionaryKey];
+
+            // Load dictionary file
+            $dictionaryPath = resource_path('dictionary/' . $dictionaryFile);
+            if (!file_exists($dictionaryPath)) {
+                throw new \RuntimeException('Dictionary file not found at: ' . $dictionaryPath);
+            }
+
+            $words = file($dictionaryPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+            // Skip the first line which contains the word count
+            array_shift($words);
+
+            // Process words and organize by length
+            $this->dictionary = [];
+            foreach ($words as $word) {
+                // Remove any slash and following characters (used in .dic files for affix rules)
+                $word = preg_replace('/\/.*$/', '', $word);
+
+                // Skip words that are too short
+                if (strlen($word) < self::MIN_WORD_LENGTH) {
+                    continue;
+                }
+
+                $length = strlen($word);
+                if (!isset($this->dictionary[$length])) {
+                    $this->dictionary[$length] = [];
+                }
+                $this->dictionary[$length][] = strtolower($word);
+            }
+
+            // Cache the processed dictionary
+            Cache::put($cacheKey, $this->dictionary, self::CACHE_TTL);
+        }
     }
 
     protected function getTerminal(): Terminal
@@ -136,6 +197,7 @@ class HangmanCommand extends AbstractCommand
             self::GAME_OVER_KEY,
             self::WINNER_KEY,
             self::DIFFICULTY_KEY,
+            self::DICTIONARY_KEY,
         ];
     }
 
@@ -143,18 +205,19 @@ class HangmanCommand extends AbstractCommand
     {
         // Reset session data
         $this->clearSession();
-        $this->setCurrentStep(self::STEP_DIFFICULTY);
+        $this->setCurrentStep(self::STEP_DICTIONARY);
 
         return $this->interactiveOutput([
             $this->formatOutput("Hangman Game", 'header'),
             $this->formatOutput("============", 'subheader'),
             "",
-            $this->formatOutput("Choose difficulty level:", 'info'),
-            $this->formatOutput("1. Easy (Short words)", 'normal'),
-            $this->formatOutput("2. Medium (Medium words)", 'normal'),
-            $this->formatOutput("3. Hard (Long words)", 'normal'),
+            $this->formatOutput("Choose your dictionary:", 'info'),
+            $this->formatOutput("1. British English (GB)", 'normal'),
+            $this->formatOutput("2. American English (US)", 'normal'),
+            $this->formatOutput("3. Canadian English (CA)", 'normal'),
+            $this->formatOutput("4. Australian English (AU)", 'normal'),
             "",
-            $this->formatOutput("Enter your choice (1-3):", 'warning'),
+            $this->formatOutput("Enter your choice (1-4):", 'warning'),
         ]);
     }
 
@@ -163,6 +226,8 @@ class HangmanCommand extends AbstractCommand
         $input = implode('', $args);
 
         switch ($step) {
+            case self::STEP_DICTIONARY:
+                return $this->handleDictionaryStep($input);
             case self::STEP_DIFFICULTY:
                 return $this->handleDifficultyStep($input);
             case self::STEP_GUESS:
@@ -175,6 +240,39 @@ class HangmanCommand extends AbstractCommand
                     $this->formatOutput("Error: Invalid step", 'error'),
                 ];
         }
+    }
+
+    protected function handleDictionaryStep(string $input): array
+    {
+        if (!in_array($input, ['1', '2', '3', '4'])) {
+            return $this->interactiveOutput([
+                $this->formatOutput("Invalid choice! Please enter 1, 2, 3, or 4:", 'error'),
+            ]);
+        }
+
+        // Set dictionary
+        $dictionary = match ($input) {
+            '1' => 'GB',
+            '2' => 'US',
+            '3' => 'CA',
+            '4' => 'AU',
+        };
+        $this->setSessionValue(self::DICTIONARY_KEY, $dictionary);
+
+        $this->loadDictionary();
+
+        $this->setCurrentStep(self::STEP_DIFFICULTY);
+
+        return $this->interactiveOutput([
+            $this->formatOutput("Dictionary: " . $dictionary, 'info'),
+            "",
+            $this->formatOutput("Choose difficulty level:", 'info'),
+            $this->formatOutput("1. Easy (Short words)", 'normal'),
+            $this->formatOutput("2. Medium (Medium words)", 'normal'),
+            $this->formatOutput("3. Hard (Long words)", 'normal'),
+            "",
+            $this->formatOutput("Enter your choice (1-3):", 'warning'),
+        ]);
     }
 
     protected function handleDifficultyStep(string $input): array
@@ -311,17 +409,18 @@ class HangmanCommand extends AbstractCommand
 
         if ($input === 'yes' || $input === 'y') {
             // Reset to difficulty step
-            $this->setCurrentStep(self::STEP_DIFFICULTY);
+            $this->setCurrentStep(self::STEP_DICTIONARY);
 
             return $this->interactiveOutput([
                 $this->formatOutput("Let's play again!", 'success'),
                 "",
-                $this->formatOutput("Choose difficulty level:", 'info'),
-                $this->formatOutput("1. Easy (Short words)", 'normal'),
-                $this->formatOutput("2. Medium (Medium words)", 'normal'),
-                $this->formatOutput("3. Hard (Long words)", 'normal'),
+                $this->formatOutput("Choose your dictionary:", 'info'),
+                $this->formatOutput("1. British English (GB)", 'normal'),
+                $this->formatOutput("2. American English (US)", 'normal'),
+                $this->formatOutput("3. Canadian English (CA)", 'normal'),
+                $this->formatOutput("4. Australian English (AU)", 'normal'),
                 "",
-                $this->formatOutput("Enter your choice (1-3):", 'warning'),
+                $this->formatOutput("Enter your choice (1-4):", 'warning'),
             ]);
         } else {
             // End the game
@@ -336,54 +435,43 @@ class HangmanCommand extends AbstractCommand
 
     protected function getRandomWord(string $difficulty): string
     {
-        $word = '';
-        $attempts = 0;
-        $maxAttempts = 10;
-
-        while ($attempts < $maxAttempts) {
-            // Get a small paragraph of text
-            $text = $this->faker->realText(50);
-            // Split into words and filter by length
-            $words = array_filter(
-                preg_split('/\s+/', $text),
-                function ($word) use ($difficulty) {
-                    // Remove all punctuation and non-alphabetic characters
-                    $word = preg_replace('/[^a-zA-Z]/', '', $word);
-                    // Skip empty words or words that are too short
-                    if (empty($word) || strlen($word) < 3) {
-                        return false;
-                    }
-
-                    $length = strlen($word);
-                    switch ($difficulty) {
-                        case self::DIFFICULTY_EASY:
-                            return $length >= 3 && $length <= 5;
-                        case self::DIFFICULTY_MEDIUM:
-                            return $length >= 6 && $length <= 8;
-                        case self::DIFFICULTY_HARD:
-                            return $length >= 9;
-                        default:
-                            return false;
-                    }
-                }
-            );
-
-            if (!empty($words)) {
-                $word = strtolower($words[array_rand($words)]);
-                // Final cleanup to ensure no punctuation remains
-                return preg_replace('/[^a-zA-Z]/', '', $word);
-            }
-            $attempts++;
-        }
-
-        // Fallback words if Faker fails to generate appropriate words
-        $fallbackWords = [
-            self::DIFFICULTY_EASY => ['cat', 'dog', 'sun', 'moon', 'star'],
-            self::DIFFICULTY_MEDIUM => ['computer', 'elephant', 'giraffe', 'mountain', 'ocean'],
-            self::DIFFICULTY_HARD => ['extravaganza', 'bureaucracy', 'chrysanthemum', 'incomprehensible', 'juxtaposition'],
+        // Define length ranges for each difficulty
+        $lengthRanges = [
+            self::DIFFICULTY_EASY => [
+                'min' => self::MIN_WORD_LENGTH,
+                'max' => self::MAX_WORD_LENGTH_EASY,
+            ],
+            self::DIFFICULTY_MEDIUM => [
+                'min' => self::MAX_WORD_LENGTH_EASY + 1,
+                'max' => self::MAX_WORD_LENGTH_MEDIUM,
+            ],
+            self::DIFFICULTY_HARD => [
+                'min' => self::MAX_WORD_LENGTH_MEDIUM + 1,
+                'max' => self::MAX_WORD_LENGTH_HARD,
+            ],
         ];
 
-        return $fallbackWords[$difficulty][array_rand($fallbackWords[$difficulty])];
+        $range = $lengthRanges[$difficulty];
+
+        // Get all words that match the length criteria
+        $availableWords = [];
+        for ($length = $range['min']; $length <= $range['max']; $length++) {
+            if (isset($this->dictionary[$length])) {
+                $availableWords = array_merge($availableWords, $this->dictionary[$length]);
+            }
+        }
+
+        if (empty($availableWords)) {
+            // Fallback words if dictionary is empty
+            $fallbackWords = [
+                self::DIFFICULTY_EASY => ['cat', 'dog', 'sun', 'moon', 'star'],
+                self::DIFFICULTY_MEDIUM => ['computer', 'elephant', 'giraffe', 'mountain', 'ocean'],
+                self::DIFFICULTY_HARD => ['extravaganza', 'bureaucracy', 'chrysanthemum', 'incomprehensible', 'juxtaposition'],
+            ];
+            return $fallbackWords[$difficulty][array_rand($fallbackWords[$difficulty])];
+        }
+
+        return $availableWords[array_rand($availableWords)];
     }
 
     protected function formatWord(string $word, array $guessedLetters): string
