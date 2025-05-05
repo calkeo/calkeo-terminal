@@ -1,6 +1,20 @@
-<div x-data="{ isMobile: window.innerWidth < 768 }"
-    x-init="window.addEventListener('resize', () => isMobile = window.innerWidth < 768)"
-    class="h-full w-full p-0 m-0 flex items-center justify-center">
+<div x-data="{
+        isMobile: window.innerWidth < 768,
+        startAnimation() {
+            $wire.nextAnimationStep();
+        }
+    }" x-init="
+        window.addEventListener('resize', () => isMobile = window.innerWidth < 768);
+        $wire.on('start-login-animation', () => {
+            setTimeout(() => $wire.nextAnimationStep(), Math.floor(Math.random() * (1500 - 500 + 1)) + 500);
+        });
+        $wire.on('next-animation-step', () => {
+            setTimeout(() => $wire.nextAnimationStep(), Math.floor(Math.random() * (1500 - 500 + 1)) + 500);
+        });
+        $wire.on('final-step', () => {
+            setTimeout(() => $wire.redirectToTerminal(), 1000);
+        });
+    " class="h-full w-full p-0 m-0">
     {{-- Mobile View --}}
     <div x-cloak x-show="isMobile" class="h-full flex flex-col items-center justify-center p-6 text-center">
         <div class="max-w-md">
@@ -26,38 +40,51 @@
         </div>
     </div>
 
-    <div x-cloak x-show="!isMobile" class="w-full max-w-lg">
-        <div class="bg-gray-950 rounded-lg overflow-hidden shadow-2xl">
-            {{-- Terminal Header --}}
-            <div class="flex items-center p-2 bg-gray-950 border-b border-gray-800">
-                <div class="text-sm text-green-400">login</div>
-            </div>
+    <div x-cloak x-show="!isMobile" class="h-full flex flex-col">
+        <div class="flex items-center p-2 bg-gray-950 border-b border-gray-800">
+            <div class="text-xs text-cyan-400">login@calkeo.dev ~ </div>
+        </div>
 
-            {{-- Login Content --}}
-            <div class="p-6 bg-black">
-                <div class="space-y-4 text-green-400">
-                    <div class="text-cyan-400">Welcome to {{ config('app.name') }} {{ config('app.version') }}</div>
-                    <div class="text-sm text-gray-200">{{ $tagline }}</div>
+        <div class="flex-1 bg-black p-4 overflow-y-auto text-green-400 space-y-2 scroll-smooth min-h-0">
+            <div class="space-y-4">
+                {{-- Welcome Message --}}
+                <div class="text-cyan-400">Welcome to {{ config('app.name') }} {{ config('app.version') }}</div>
+                <div class="text-sm text-gray-200">{{ $tagline }}</div>
 
-                    {{-- Subtle hint --}}
-                    <div class="text-xs text-gray-600 italic">Enter any credentials to continue...</div>
+                {{-- Subtle hint --}}
+                <div class="text-xs text-gray-600 italic">Enter any credentials to continue...</div>
 
-                    <div class="flex items-center">
+                {{-- Login Form --}}
+                <div x-show="!$wire.isAnimating">
+                    {{-- Username Input --}}
+                    <div class="flex items-center mb-2">
+                        <span class="mr-2 text-cyan-400">$</span>
                         <span class="mr-2">Username:</span>
-                        <input type="text" wire:model="username" wire:keydown.enter="focusPassword"
+                        <input type="search" name="terminal-username" autocomplete="off" data-form-type="other"
+                            data-lpignore="true" data-kwimpalastart="0" data-kwimpalaid="0" data-1p-ignore="true"
+                            data-1p-field="other" data-1p-ignore-fill="true" wire:model="username"
+                            wire:keydown.enter="login"
                             class="flex-1 bg-transparent border-none outline-none text-green-400 focus:ring-0"
-                            placeholder="Username" autofocus>
+                            id="terminal-username-input" autofocus>
+                        <span class="animate-pulse text-green-400" x-show="$wire.isTyping">_</span>
                     </div>
-                    <div class="flex items-center">
-                        <span class="mr-2">Password:</span>
-                        <input type="password" wire:model="password" wire:keydown.enter="login"
-                            class="flex-1 bg-transparent border-none outline-none text-green-400 focus:ring-0"
-                            placeholder="Password">
-                    </div>
-                    @if($error)
-                    <div class="text-red-500">{{ $error }}</div>
-                    @endif
                 </div>
+
+                {{-- Login Animation --}}
+                <div x-show="$wire.isAnimating" class="space-y-2">
+                    <div class="flex items-center">
+                        <span class="mr-2 text-cyan-400">$</span>
+                        <span class="text-green-400" x-text="$wire.animationText"></span>
+                        <span class="animate-pulse text-green-400">_</span>
+                    </div>
+                </div>
+
+                @if($error)
+                <div class="text-red-500 flex items-center">
+                    <span class="mr-2 text-cyan-400">$</span>
+                    <span class="text-red-500">Error: {{ $error }}</span>
+                </div>
+                @endif
             </div>
         </div>
     </div>

@@ -155,7 +155,7 @@ class Terminal extends Component
             if ($this->commandState->has(CommandStates::LOGOUT)) {
                 $this->output = $result;
                 $this->currentCommandName = null;
-                return $this->redirect('/login');
+                return $this->redirect('/login', navigate: true);
             }
 
             // Check if the command is complete (no more steps)

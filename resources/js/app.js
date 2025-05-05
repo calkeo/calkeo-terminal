@@ -2,8 +2,18 @@ import './bootstrap';
 
 function focusTerminalInput() {
     setTimeout(() => {
-        document.getElementById('terminal-input').focus();
-    }, 100);
+        const usernameInput = document.getElementById('terminal-username-input');
+        if (usernameInput) {
+            usernameInput.focus();
+        }
+    }, 500);
+
+    setTimeout(() => {
+        const commandInput = document.getElementById('terminal-input');
+        if (commandInput) {
+            commandInput.focus();
+        }
+    }, 500);
 }
 
 document.addEventListener('livewire:initialized', () => {
