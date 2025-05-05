@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Word Chain Game**
   - Added word chain game with three difficulty levels and a dictionary selection for British, American, Canadian and Australian English
+- **Connect Four Game**
+  - Added connect four game with three difficulty levels
+  
 
 ## [0.3.0] - 2025-05-04
 
