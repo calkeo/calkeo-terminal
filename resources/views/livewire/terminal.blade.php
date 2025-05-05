@@ -49,7 +49,7 @@
 
             {{-- Command Input --}}
             @unless($hideInput)
-            <div class="flex items-center mt-3" x-show="!isCommandExecuting">
+            <div class="flex items-center mt-3" :class="{ 'opacity-100': isCommandExecuting }">
                 @if(!$currentCommandName)
                 <span class="text-cyan-400 mr-2">{{ $username }}@calkeo.dev:</span>
                 <span class="text-yellow-500 mr-1">~</span>
@@ -64,9 +64,7 @@
                     wire:keydown.down.prevent="getNextCommand" wire:keydown.ctrl.c.prevent="clearCommand"
                     wire:keydown.tab.prevent="handleTabCompletion"
                     class="flex-1 bg-transparent border-none outline-none @if(!$currentCommandName) text-green-400 @else text-purple-400 @endif focus:ring-0"
-                    :class="{
-                        'opacity-75': isCommandExecuting
-                    }" @if(!$currentCommandName) placeholder="Type a command..." @endif autofocus>
+                    @if(!$currentCommandName) placeholder="Type a command..." @endif autofocus>
             </div>
             {{-- <div x-cloak x-show="isCommandExecuting" class="flex items-center">
                 <span class="text-green-400">_</span>
