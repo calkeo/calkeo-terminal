@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class MakeCommand extends Command
 {
-    protected $signature = 'make:command {name : The name of the command} {--interactive : Whether the command should be interactive}';
+    protected $signature = 'make:terminal-command {name : The name of the command} {--interactive : Whether the command should be interactive}';
     protected $description = 'Create a new command class';
 
     public function handle()

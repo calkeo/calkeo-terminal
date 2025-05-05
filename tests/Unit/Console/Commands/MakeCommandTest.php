@@ -39,7 +39,7 @@ class MakeCommandTest extends TestCase
     public function test_make_command_creates_regular_command()
     {
         // Run the command
-        $this->artisan('make:command', ['name' => 'test'])
+        $this->artisan('make:terminal-command', ['name' => 'test'])
              ->expectsOutput('Command TestCommand created successfully!')
              ->assertSuccessful();
 
@@ -58,7 +58,7 @@ class MakeCommandTest extends TestCase
     public function test_make_command_creates_interactive_command()
     {
         // Run the command
-        $this->artisan('make:command', [
+        $this->artisan('make:terminal-command', [
                  'name' => 'interactive-test',
                  '--interactive' => true,
              ])
@@ -91,7 +91,7 @@ class MakeCommandTest extends TestCase
         File::put($this->commandsPath . '/TestCommand.php', '<?php namespace App\Commands; class TestCommand {}');
 
         // Run the command
-        $this->artisan('make:command', ['name' => 'test'])
+        $this->artisan('make:terminal-command', ['name' => 'test'])
              ->expectsOutput('Command TestCommand already exists!')
              ->assertFailed();
     }
@@ -101,7 +101,7 @@ class MakeCommandTest extends TestCase
         $commandName = 'my-special-command';
 
         // Run the command with special characters
-        $this->artisan('make:command', ['name' => $commandName])
+        $this->artisan('make:terminal-command', ['name' => $commandName])
              ->expectsOutput('Command MySpecialCommandCommand created successfully!')
              ->assertSuccessful();
 

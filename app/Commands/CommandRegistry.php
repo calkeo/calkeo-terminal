@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class CommandRegistry
 {
@@ -11,48 +12,66 @@ class CommandRegistry
      *
      * @var Collection
      */
-    protected $commands;
+    public $commands;
 
     /**
      * Command aliases
      *
      * @var Collection
      */
-    protected $aliases;
+    public $aliases;
+
+    /**
+     * Cache key for commands
+     */
+    const CACHE_KEY = 'command_registry';
+
+    /**
+     * Cache key for aliases
+     */
+    const ALIASES_CACHE_KEY = 'command_aliases';
 
     /**
      * Constructor
      */
     public function __construct()
     {
+        $this->loadFromCache();
+    }
+
+    /**
+     * Load commands and aliases from cache
+     */
+    protected function loadFromCache(): void
+    {
+        $this->commands = Cache::get(self::CACHE_KEY, new Collection());
+        $this->aliases = Cache::get(self::ALIASES_CACHE_KEY, new Collection());
+    }
+
+    /**
+     * Save commands and aliases to cache
+     */
+    protected function saveToCache(): void
+    {
+        Cache::forever(self::CACHE_KEY, $this->commands);
+        Cache::forever(self::ALIASES_CACHE_KEY, $this->aliases);
+    }
+
+    /**
+     * Clear the cache
+     */
+    public function clearCache(): void
+    {
+        Cache::forget(self::CACHE_KEY);
+        Cache::forget(self::ALIASES_CACHE_KEY);
         $this->commands = new Collection();
         $this->aliases = new Collection();
+    }
 
-        // Register default commands
-        $this->register(new HelpCommand($this));
-        $this->register(new ClearCommand());
-        $this->register(new DateCommand());
-        $this->register(new EchoCommand());
-        $this->register(new WhoamiCommand());
-        $this->register(new GithubCommand());
-        $this->register(new AboutCommand());
-        $this->register(new ChangelogCommand());
-        $this->register(new CalculatorCommand());
-        $this->register(new SudoCommand());
-        $this->register(new SshCommand());
-        $this->register(new GamesCommand());
-        $this->register(new RockPaperScissorsCommand());
-        $this->register(new GlobalThermonuclearWarCommand());
-        $this->register(new NumberGuessingCommand());
-        $this->register(new TicTacToeCommand());
-        $this->register(new VersionCommand());
-        $this->register(new PrivacyCommand());
-        $this->register(new WhoisCommand());
-        $this->register(new ChessCommand());
-        $this->register(new HangmanCommand());
-        $this->register(new WordChainCommand());
-        $this->register(new ForbiddenCommand());
-        $this->register(new ConnectFourCommand());
+    public static function staticClearCache(): void
+    {
+        Cache::forget(self::CACHE_KEY);
+        Cache::forget(self::ALIASES_CACHE_KEY);
     }
 
     /**
@@ -69,6 +88,8 @@ class CommandRegistry
         foreach ($command->getAliases() as $alias) {
             $this->aliases->put($alias, $command->getName());
         }
+
+        $this->saveToCache();
     }
 
     /**

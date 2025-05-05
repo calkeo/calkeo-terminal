@@ -1,86 +1,131 @@
 <?php
 
+namespace Tests\Unit\Commands;
+
 use App\Commands\CommandInterface;
 use App\Commands\CommandRegistry;
 use App\Commands\HelpCommand;
 use App\Livewire\Terminal;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Mockery;
+use Tests\TestCase;
 
-test('help command returns formatted help information', function () {
-    // Create a mock command
-    $mockCommand = new class implements CommandInterface
+class HelpCommandTest extends TestCase
+{
+    protected $cacheMock;
+
+    protected function setUp(): void
     {
-        public function getName(): string
-        {return 'test';}
-        public function getDescription(): string
-        {return 'Test command';}
-        public function execute(Terminal $terminal, array $args = []): array
-        {return ['Test executed'];}
-        public function getUsage(): string
-        {return 'test [options]';}
-        public function isHidden(): bool
-        {return false;}
-        public function getAliases(): array
-        {return [];}
-    };
+        parent::setUp();
 
-    // Create a mock registry with the test command
-    $registry = new CommandRegistry();
-    $registry->register($mockCommand);
+        // Create a fresh cache mock for each test
+        $this->cacheMock = Mockery::mock('cache');
+        Cache::swap($this->cacheMock);
 
-    $command = new HelpCommand($registry);
-    $terminal = new Terminal();
-    $result = $command->execute($terminal);
+        // Set default cache behavior
+        $this->cacheMock->shouldReceive('get')
+             ->with('command_registry', Mockery::type(Collection::class))
+             ->byDefault()
+             ->andReturn(new Collection());
+        $this->cacheMock->shouldReceive('get')
+             ->with('command_aliases', Mockery::type(Collection::class))
+             ->byDefault()
+             ->andReturn(new Collection());
+        $this->cacheMock->shouldReceive('forever')
+             ->byDefault()
+             ->andReturn(true);
+        $this->cacheMock->shouldReceive('forget')
+             ->byDefault()
+             ->andReturn(true);
+    }
 
-    // Check that the result contains the help information
-    expect($result)->toHaveCount(6); // Header + table + empty line + help info
-    expect($result[0])->toContain('calkeOS Terminal Help');
-    expect($result[1])->toContain('test');
-    expect($result[1])->toContain('Test command');
-    expect($result[3])->toContain('help &lt;command&gt;');
-});
-
-test('help command with specific command returns detailed help', function () {
-    // Create a mock command
-    $mockCommand = new class implements CommandInterface
+    protected function tearDown(): void
     {
-        public function getName(): string
-        {return 'test';}
-        public function getDescription(): string
-        {return 'Test command';}
-        public function execute(Terminal $terminal, array $args = []): array
-        {return ['Test executed'];}
-        public function getUsage(): string
-        {return 'test [options]';}
-        public function isHidden(): bool
-        {return false;}
-        public function getAliases(): array
-        {return [];}
-    };
+        Mockery::close();
+        parent::tearDown();
+    }
 
-    // Create a mock registry with the test command
-    $registry = new CommandRegistry();
-    $registry->register($mockCommand);
+    public function test_help_command_returns_formatted_help_information()
+    {
+        // Create a mock command
+        $mockCommand = new class implements CommandInterface
+        {
+            public function getName(): string
+            {return 'test';}
+            public function getDescription(): string
+            {return 'Test command';}
+            public function execute(Terminal $terminal, array $args = []): array
+            {return ['Test executed'];}
+            public function getUsage(): string
+            {return 'test [options]';}
+            public function isHidden(): bool
+            {return false;}
+            public function getAliases(): array
+            {return [];}
+        };
 
-    $command = new HelpCommand($registry);
-    $terminal = new Terminal();
-    $result = $command->execute($terminal, ['test']);
+        // Create a mock registry with the test command
+        $registry = new CommandRegistry();
+        $registry->register($mockCommand);
 
-    // Check that the result contains the detailed help information
-    expect($result)->toHaveCount(2); // Header + box
-    expect($result[0])->toContain('Command: test');
-    expect($result[1])->toContain('Description:');
-    expect($result[1])->toContain('Test command');
-    expect($result[1])->toContain('Usage:');
-    expect($result[1])->toContain('test [options]');
-});
+        $command = new HelpCommand($registry);
+        $terminal = new Terminal();
+        $result = $command->execute($terminal);
 
-test('help command with non-existent command returns error', function () {
-    $registry = new CommandRegistry();
-    $command = new HelpCommand($registry);
-    $terminal = new Terminal();
-    $result = $command->execute($terminal, ['nonexistent']);
+        // Check that the result contains the help information
+        $this->assertCount(6, $result); // Header + table + empty line + help info
+        $this->assertStringContainsString('calkeOS Terminal Help', $result[0]);
+        $this->assertStringContainsString('test', $result[1]);
+        $this->assertStringContainsString('Test command', $result[1]);
+        $this->assertStringContainsString('help &lt;command&gt;', $result[3]);
+    }
 
-    // Check that the result contains the error message
-    expect($result)->toHaveCount(1);
-    expect($result[0])->toContain('Command not found: nonexistent');
-});
+    public function test_help_command_with_specific_command_returns_detailed_help()
+    {
+        // Create a mock command
+        $mockCommand = new class implements CommandInterface
+        {
+            public function getName(): string
+            {return 'test';}
+            public function getDescription(): string
+            {return 'Test command';}
+            public function execute(Terminal $terminal, array $args = []): array
+            {return ['Test executed'];}
+            public function getUsage(): string
+            {return 'test [options]';}
+            public function isHidden(): bool
+            {return false;}
+            public function getAliases(): array
+            {return [];}
+        };
+
+        // Create a mock registry with the test command
+        $registry = new CommandRegistry();
+        $registry->register($mockCommand);
+
+        $command = new HelpCommand($registry);
+        $terminal = new Terminal();
+        $result = $command->execute($terminal, ['test']);
+
+        // Check that the result contains the detailed help information
+        $this->assertCount(2, $result); // Header + box
+        $this->assertStringContainsString('Command: test', $result[0]);
+        $this->assertStringContainsString('Description:', $result[1]);
+        $this->assertStringContainsString('Test command', $result[1]);
+        $this->assertStringContainsString('Usage:', $result[1]);
+        $this->assertStringContainsString('test [options]', $result[1]);
+    }
+
+    public function test_help_command_with_non_existent_command_returns_error()
+    {
+        $registry = new CommandRegistry();
+        $command = new HelpCommand($registry);
+        $terminal = new Terminal();
+        $result = $command->execute($terminal, ['nonexistent']);
+
+        // Check that the result contains the error message
+        $this->assertCount(1, $result);
+        $this->assertStringContainsString('Command not found: nonexistent', $result[0]);
+    }
+}

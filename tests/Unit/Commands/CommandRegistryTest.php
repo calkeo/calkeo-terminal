@@ -6,6 +6,10 @@ use App\Commands\CommandInterface;
 use App\Commands\CommandRegistry;
 use App\Commands\SshCommand;
 use App\Livewire\Terminal;
+use App\Providers\CommandServiceProvider;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Mockery;
 use Tests\TestCase;
 
 class MockCommand implements CommandInterface
@@ -50,11 +54,43 @@ class MockCommand implements CommandInterface
 class CommandRegistryTest extends TestCase
 {
     protected $registry;
+    protected $cacheMock;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->registry = new CommandRegistry();
+
+        // Create a fresh cache mock for each test
+        $this->cacheMock = Mockery::mock('cache');
+        Cache::swap($this->cacheMock);
+
+        // Set default cache behavior
+        $this->cacheMock->shouldReceive('get')
+             ->with('command_registry', Mockery::type(Collection::class))
+             ->byDefault()
+             ->andReturn(new Collection());
+        $this->cacheMock->shouldReceive('get')
+             ->with('command_aliases', Mockery::type(Collection::class))
+             ->byDefault()
+             ->andReturn(new Collection());
+        $this->cacheMock->shouldReceive('forever')
+             ->byDefault()
+             ->andReturn(true);
+        $this->cacheMock->shouldReceive('forget')
+             ->byDefault()
+             ->andReturn(true);
+
+        // Register the service provider
+        $this->app->register(CommandServiceProvider::class);
+
+        // Get the registry instance
+        $this->registry = $this->app->make(CommandRegistry::class);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
     }
 
     public function test_register_adds_command_to_registry()
@@ -173,6 +209,10 @@ class CommandRegistryTest extends TestCase
 
     public function test_command_registry_registers_ssh_command()
     {
+        // Register the SSH command
+        $sshCommand = new SshCommand();
+        $this->registry->register($sshCommand);
+
         // Check that the SSH command is registered
         $this->assertTrue($this->registry->has('ssh'));
         $this->assertInstanceOf(SshCommand::class, $this->registry->get('ssh'));
@@ -184,33 +224,155 @@ class CommandRegistryTest extends TestCase
 
     public function test_command_registry_returns_all_commands()
     {
+        // Register a test command
+        $command = new MockCommand('test', 'Test command');
+        $this->registry->register($command);
+
         $commands = $this->registry->all();
 
         // Check that the commands collection is not empty
         $this->assertNotEmpty($commands);
 
-        // Check that it contains the SSH command
-        $this->assertTrue($commands->has('ssh'));
-        $this->assertInstanceOf(SshCommand::class, $commands->get('ssh'));
+        // Check that it contains our test command
+        $this->assertTrue($commands->has('test'));
+        $this->assertInstanceOf(MockCommand::class, $commands->get('test'));
     }
 
     public function test_command_registry_returns_help_information()
     {
+        // Register a test command
+        $command = new MockCommand('test', 'Test command');
+        $this->registry->register($command);
+
         $help = $this->registry->getHelp();
 
         // Check that the help information is not empty
         $this->assertNotEmpty($help);
 
-        // Check that it contains the SSH command
-        $hasSshCommand = false;
+        // Check that it contains our test command
+        $hasTestCommand = false;
         foreach ($help as $line) {
-            if (strpos($line, 'ssh') === 0) {
-                $hasSshCommand = true;
-                $this->assertStringContainsString('Connect to a remote server via SSH', $line);
+            if (strpos($line, 'test') === 0) {
+                $hasTestCommand = true;
+                $this->assertStringContainsString('Test command', $line);
                 break;
             }
         }
 
-        $this->assertTrue($hasSshCommand, 'SSH command not found in help information');
+        $this->assertTrue($hasTestCommand, 'Test command not found in help information');
+    }
+
+    public function test_command_registry_loads_from_cache()
+    {
+        // Create a command
+        $command = new MockCommand('test', 'Test command');
+        $commands = new Collection(['test' => $command]);
+
+        // Set up cache expectations
+        $this->cacheMock->shouldReceive('get')
+             ->with('command_registry', Mockery::type(Collection::class))
+             ->andReturn($commands);
+        $this->cacheMock->shouldReceive('get')
+             ->with('command_aliases', Mockery::type(Collection::class))
+             ->andReturn(new Collection());
+
+        // Create a new registry instance
+        $newRegistry = new CommandRegistry();
+
+        // Verify the command is loaded from cache
+        $this->assertTrue($newRegistry->has('test'));
+        $this->assertEquals('test', $newRegistry->get('test')->getName());
+    }
+
+    public function test_command_registry_clears_cache()
+    {
+        // Set up cache expectations for clearing
+        $this->cacheMock->shouldReceive('forget')
+             ->with('command_registry')
+             ->once()
+             ->andReturn(true);
+        $this->cacheMock->shouldReceive('forget')
+             ->with('command_aliases')
+             ->once()
+             ->andReturn(true);
+
+        // Clear the cache
+        $this->registry->clearCache();
+
+        // Create a new registry instance
+        $newRegistry = new CommandRegistry();
+
+        // Verify the registry is empty
+        $this->assertEmpty($newRegistry->all());
+    }
+
+    public function test_static_clear_cache_method_works()
+    {
+        // Set up cache expectations for clearing
+        $this->cacheMock->shouldReceive('forget')
+             ->with('command_registry')
+             ->once()
+             ->andReturn(true);
+        $this->cacheMock->shouldReceive('forget')
+             ->with('command_aliases')
+             ->once()
+             ->andReturn(true);
+
+        // Clear the cache using static method
+        CommandRegistry::staticClearCache();
+
+        // Create a new registry instance
+        $newRegistry = new CommandRegistry();
+
+        // Verify the registry is empty
+        $this->assertEmpty($newRegistry->all());
+    }
+
+    public function test_command_registry_saves_to_cache_on_register()
+    {
+        // Create a command
+        $command = new MockCommand('test', 'Test command');
+
+        // Set up cache expectations for saving
+        $this->cacheMock->shouldReceive('forever')
+            ->with('command_registry', Mockery::on(function ($value) {
+                return $value->has('test');
+            }))
+            ->once();
+        $this->cacheMock->shouldReceive('forever')
+             ->with('command_aliases', Mockery::type(Collection::class))
+             ->once();
+
+        // Register the command
+        $this->registry->register($command);
+
+        // Set up cache expectations for loading
+        $this->cacheMock->shouldReceive('get')
+             ->with('command_registry', Mockery::type(Collection::class))
+             ->andReturn(new Collection(['test' => $command]));
+
+        // Create a new registry instance
+        $newRegistry = new CommandRegistry();
+
+        // Verify the command is in the new registry
+        $this->assertTrue($newRegistry->has('test'));
+        $this->assertEquals('test', $newRegistry->get('test')->getName());
+    }
+
+    public function test_command_registry_handles_empty_cache()
+    {
+        // Set up cache expectations for empty cache
+        $this->cacheMock->shouldReceive('get')
+             ->with('command_registry', Mockery::type(Collection::class))
+             ->andReturn(new Collection());
+        $this->cacheMock->shouldReceive('get')
+             ->with('command_aliases', Mockery::type(Collection::class))
+             ->andReturn(new Collection());
+
+        // Create a new registry instance
+        $newRegistry = new CommandRegistry();
+
+        // Verify the registry is empty
+        $this->assertEmpty($newRegistry->all());
     }
 }
