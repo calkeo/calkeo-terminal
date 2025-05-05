@@ -5,6 +5,7 @@ namespace App\Commands;
 use App\Commands\ChessCommand;
 use App\Commands\HangmanCommand;
 use App\Commands\TicTacToeCommand;
+use App\Commands\WordChainCommand;
 use App\Livewire\Terminal;
 use Illuminate\Support\Collection;
 
@@ -42,6 +43,11 @@ class GamesCommand extends AbstractCommand
                 'name' => 'Rock, Paper, Scissors',
                 'description' => 'The timeless decision maker',
                 'command' => new RockPaperScissorsCommand(),
+            ],
+            [
+                'name' => 'Word Chain',
+                'description' => 'Create a chain of words',
+                'command' => new WordChainCommand(),
             ],
             [
                 'name' => 'Battleship',

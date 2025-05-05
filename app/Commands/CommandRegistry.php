@@ -56,6 +56,7 @@ class CommandRegistry
         $this->register(new WhoisCommand());
         $this->register(new ChessCommand());
         $this->register(new HangmanCommand());
+        $this->register(new WordChainCommand());
     }
 
     /**
