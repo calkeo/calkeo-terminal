@@ -2,12 +2,6 @@
 
 namespace App\Commands;
 
-use App\Commands\ChessCommand;
-use App\Commands\HangmanCommand;
-use App\Commands\PrivacyCommand;
-use App\Commands\TicTacToeCommand;
-use App\Commands\VersionCommand;
-use App\Commands\WhoisCommand;
 use Illuminate\Support\Collection;
 
 class CommandRegistry

@@ -2,10 +2,6 @@
 
 namespace App\Commands;
 
-use App\Commands\ChessCommand;
-use App\Commands\HangmanCommand;
-use App\Commands\TicTacToeCommand;
-use App\Commands\WordChainCommand;
 use App\Livewire\Terminal;
 use Illuminate\Support\Collection;
 
