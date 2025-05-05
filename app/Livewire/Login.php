@@ -87,7 +87,7 @@ class Login extends Component
 
     public function redirectToTerminal()
     {
-        return $this->redirect('/', navigate: true);
+        return $this->redirect('/');
     }
 
     public function render()
