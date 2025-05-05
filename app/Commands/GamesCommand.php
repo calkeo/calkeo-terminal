@@ -52,6 +52,7 @@ class GamesCommand extends AbstractCommand
             [
                 'name' => 'Connect Four',
                 'description' => 'Line up four in a row',
+                'command' => new ConnectFourCommand(),
             ],
         ]);
 

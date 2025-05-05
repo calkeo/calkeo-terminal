@@ -52,6 +52,7 @@ class CommandRegistry
         $this->register(new HangmanCommand());
         $this->register(new WordChainCommand());
         $this->register(new ForbiddenCommand());
+        $this->register(new ConnectFourCommand());
     }
 
     /**
