@@ -16,7 +16,7 @@
         "laravel/tinker": "^2.10.1",
         "league/commonmark": "^2.6",
         "livewire/livewire": "^3.6",
-        "predis/predis": "^2.0",
+        "predis/predis": "^3.0",
         "sentry/sentry-laravel": "^4.13",
         "symfony/string": "^7.2"
     },
