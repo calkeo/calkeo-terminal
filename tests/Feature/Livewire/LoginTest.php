@@ -71,6 +71,10 @@ class LoginTest extends TestCase
             $component->call('nextAnimationStep');
         }
 
+        // // Instead of checking session directly, verify the component's state
+        // $component->assertSet('animationStep', $stepCount)
+        //           ->assertSet('isAnimating', true);
+
         // Test the final redirect
         $component->call('redirectToTerminal')
                   ->assertRedirect('/');
