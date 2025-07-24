@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Callum Keogan - Senior Developer at Shopify | Technical Leader & Full-Stack Developer</title>
         <meta name="description"
-            content="Callum Keogan is a Senior Developer at Shopify with over 6 years of experience in PHP, Ruby, Laravel, and Ruby on Rails. Leading the Checkout team, he impacts millions of businesses across 175+ countries.">
+            content="Callum Keogan is a Senior Developer at Shopify with over 8 years of experience in PHP, Ruby, Laravel, and Ruby on Rails. Working on the Checkout team, he impacts millions of businesses across 175+ countries.">
         <meta name="keywords"
             content="Callum Keogan, Senior Developer, Shopify, PHP Developer, Ruby Developer, Laravel Expert, Ruby on Rails, Checkout Development, Forms Development, Technical Leadership, Full-Stack Developer, Software Engineer, Web Development">
         <meta name="author" content="Callum Keogan">
